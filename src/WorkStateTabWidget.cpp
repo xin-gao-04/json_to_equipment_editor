@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QComboBox>
+#include <QSignalBlocker>
 #include <QDebug>
 #include <QFileDialog>
 #include <QJsonDocument>
@@ -85,11 +86,12 @@ void WorkStateTabWidget::createParameterWidgets()
         if (!param->getUnit().isEmpty()) {
             labelText += QString(" (%1)").arg(param->getUnit());
         }
-        
-        formLayout->addRow(labelText, editor);
+        QLabel* labelWidget = new QLabel(labelText);
+        formLayout->addRow(labelWidget, editor);
         
         // 存储参数引用以便后续更新
         m_parameterInstances[param->getId()] = param;
+        m_labelWidgets[param->getId()] = labelWidget;
         
         qDebug() << QString(u8"创建参数编辑器: %1, 值: %2").arg(param->getLabel()).arg(valueToSet.toString());
     }
@@ -138,12 +140,52 @@ void WorkStateTabWidget::createParameterWidgets()
                 }
                 bool visible = !hideOthers || showIds.contains(pid);
                 m_parameterInstances[pid]->setVisible(visible);
+                if (m_labelWidgets.contains(pid)) {
+                    m_labelWidgets[pid]->setVisible(visible);
+                }
             }
         };
         
         connect(controllerBox, &QComboBox::currentTextChanged, this, applyRule);
         // 初始化一次
         applyRule(controllerParam->getValue().toString());
+    }
+    
+    // 选项联动规则：根据控制项值刷新目标枚举的可选项
+    const auto& optionRules = tmpl->getOptionRules();
+    for (const auto& rule : optionRules) {
+        ParameterItem* controllerParam = m_parameterInstances.value(rule.controllerId, nullptr);
+        ParameterItem* targetParam = m_parameterInstances.value(rule.targetId, nullptr);
+        if (!controllerParam || !targetParam) {
+            continue;
+        }
+        QComboBox* controllerBox = qobject_cast<QComboBox*>(controllerParam->createEditor(paramGroup));
+        QComboBox* targetBox = qobject_cast<QComboBox*>(targetParam->createEditor(paramGroup));
+        if (!controllerBox || !targetBox) {
+            continue;
+        }
+        
+        auto applyOptions = [targetParam, targetBox, rule](const QString& currentValue) {
+            QStringList opts = rule.optionsByValue.value(currentValue);
+            if (opts.isEmpty()) {
+                return; // 没有匹配时保持现有选项
+            }
+            const QSignalBlocker blocker(targetBox);
+            targetBox->clear();
+            targetBox->addItems(opts);
+            targetParam->setOptions(opts);
+            QString current = targetParam->getValue().toString();
+            int idx = opts.indexOf(current);
+            if (idx < 0 && !opts.isEmpty()) {
+                targetParam->setValue(opts.first());
+                targetBox->setCurrentIndex(0);
+            } else if (idx >= 0) {
+                targetBox->setCurrentIndex(idx);
+            }
+        };
+        
+        connect(controllerBox, &QComboBox::currentTextChanged, this, applyOptions);
+        applyOptions(controllerParam->getValue().toString());
     }
 }
 

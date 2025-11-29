@@ -41,7 +41,13 @@ public:
         QList<VisibilityCase> cases;
         QSet<QString> affectedIds;
     };
+    struct OptionRule {
+        QString controllerId;
+        QString targetId;
+        QMap<QString, QStringList> optionsByValue;
+    };
     const QVector<VisibilityRule>& getVisibilityRules() const { return m_visibilityRules; }
+    const QVector<OptionRule>& getOptionRules() const { return m_optionRules; }
 
 private:
     QString m_templateId;
@@ -51,4 +57,5 @@ private:
     // 存储每个状态实例的参数值 stateIndex -> (parameterId -> value)
     mutable QMap<int, QVariantMap> m_stateValues;
     QVector<VisibilityRule> m_visibilityRules;
+    QVector<OptionRule> m_optionRules;
 };

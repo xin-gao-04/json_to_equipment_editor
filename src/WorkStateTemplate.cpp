@@ -139,5 +139,30 @@ WorkStateTemplate* WorkStateTemplate::fromJson(const QJsonObject& json)
         }
     }
     
+    // 选项规则：controller -> target -> options
+    if (json.contains("option_rules")) {
+        QJsonArray rules = json["option_rules"].toArray();
+        for (const auto& ruleVal : rules) {
+            QJsonObject ruleObj = ruleVal.toObject();
+            OptionRule rule;
+            rule.controllerId = ruleObj["controller"].toString();
+            rule.targetId = ruleObj["target"].toString();
+            if (ruleObj.contains("options_by_value")) {
+                QJsonObject mapObj = ruleObj["options_by_value"].toObject();
+                for (auto it = mapObj.begin(); it != mapObj.end(); ++it) {
+                    QStringList opts;
+                    QJsonArray arr = it.value().toArray();
+                    for (const auto& o : arr) {
+                        opts << o.toString();
+                    }
+                    rule.optionsByValue[it.key()] = opts;
+                }
+            }
+            if (!rule.controllerId.isEmpty() && !rule.targetId.isEmpty() && !rule.optionsByValue.isEmpty()) {
+                tmpl->m_optionRules.append(rule);
+            }
+        }
+    }
+    
     return tmpl;
 }

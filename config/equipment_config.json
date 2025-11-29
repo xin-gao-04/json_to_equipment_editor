@@ -663,26 +663,70 @@
                             "controller": "signal_type",
                             "cases": [
                                 {
-                                    "value": "1-定频",
+                                    "value": "1-定频A",
                                     "show": ["start_frequency", "end_frequency", "power"]
                                 },
                                 {
-                                    "value": "2-括频",
+                                    "value": "2-定频B",
                                     "show": ["start_frequency", "end_frequency", "power"]
                                 },
                                 {
-                                    "value": "3-跳频",
+                                    "value": "3-定频C",
+                                    "show": ["start_frequency", "end_frequency", "power"]
+                                },
+                                {
+                                    "value": "4-跳频A",
                                     "show": ["hop_period", "hop_interval", "frequency_count", "frequencies", "power"]
                                 },
                                 {
-                                    "value": "4-link11",
+                                    "value": "5-跳频B",
+                                    "show": ["hop_period", "hop_interval", "frequency_count", "frequencies", "power"]
+                                },
+                                {
+                                    "value": "6-跳频C",
+                                    "show": ["hop_period", "hop_interval", "frequency_count", "frequencies", "power"]
+                                },
+                                {
+                                    "value": "7-扩频A",
                                     "show": ["spread_code_rate", "spread_code_length", "signal_bandwidth", "modulation_style", "power"]
                                 },
                                 {
-                                    "value": "5-link4a",
+                                    "value": "8-扩频B",
+                                    "show": ["spread_code_rate", "spread_code_length", "signal_bandwidth", "modulation_style", "power"]
+                                },
+                                {
+                                    "value": "9-扩频C",
+                                    "show": ["spread_code_rate", "spread_code_length", "signal_bandwidth", "modulation_style", "power"]
+                                },
+                                {
+                                    "value": "10-扩频D",
                                     "show": ["spread_code_rate", "spread_code_length", "signal_bandwidth", "modulation_style", "power"]
                                 }
                             ]
+                        }
+                    ],
+                    "option_rules": [
+                        {
+                            "controller": "frequency_mode",
+                            "target": "signal_type",
+                            "options_by_value": {
+                                "定频": [
+                                    "1-定频A",
+                                    "2-定频B",
+                                    "3-定频C"
+                                ],
+                                "跳频": [
+                                    "4-跳频A",
+                                    "5-跳频B",
+                                    "6-跳频C"
+                                ],
+                                "扩频": [
+                                    "7-扩频A",
+                                    "8-扩频B",
+                                    "9-扩频C",
+                                    "10-扩频D"
+                                ]
+                            }
                         }
                     ],
                     "parameters": [
@@ -703,17 +747,34 @@
                             "max": 255
                         },
                         {
+                            "id": "frequency_mode",
+                            "label": "频率模式",
+                            "type": "enum",
+                            "unit": "",
+                            "default": "定频",
+                            "options": [
+                                "定频",
+                                "跳频",
+                                "扩频"
+                            ]
+                        },
+                        {
                             "id": "signal_type",
                             "label": "信号类型",
                             "type": "enum",
                             "unit": "",
-                            "default": "1",
+                            "default": "1-定频A",
                             "options": [
-                                "1-定频",
-                                "2-括频",
-                                "3-跳频",
-                                "4-link11",
-                                "5-link4a"
+                                "1-定频A",
+                                "2-定频B",
+                                "3-定频C",
+                                "4-跳频A",
+                                "5-跳频B",
+                                "6-跳频C",
+                                "7-扩频A",
+                                "8-扩频B",
+                                "9-扩频C",
+                                "10-扩频D"
                             ]
                         },
                         {
@@ -828,7 +889,8 @@
                                 "values": {
                                     "comm_network_id": "4001",
                                     "radio_number": "1",
-                                    "signal_type": "3",
+                                    "frequency_mode": "跳频",
+                                    "signal_type": "4-跳频A",
                                     "start_frequency": "300000000",
                                     "end_frequency": "400000000",
                                     "hop_period": "1000",
