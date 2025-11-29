@@ -30,6 +30,9 @@ set(SOURCES
     src/EquipmentType.cpp
     src/DeviceInstance.cpp
     src/WorkStateTemplate.cpp
+    src/ConfigEditorDialog.cpp
+    src/ParameterEditDialog.cpp
+    src/TypeEditDialog.cpp
 )
 
 set(HEADERS
@@ -40,6 +43,9 @@ set(HEADERS
     src/EquipmentType.h
     src/DeviceInstance.h
     src/WorkStateTemplate.h
+    src/ConfigEditorDialog.h
+    src/ParameterEditDialog.h
+    src/TypeEditDialog.h
 )
 
 # Create executable

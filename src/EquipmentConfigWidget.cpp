@@ -8,6 +8,9 @@
 #include <QDebug>
 #include <QApplication>
 #include <QTimer>
+#include <QFileInfo>
+#include <QDir>
+#include "ConfigEditorDialog.h"
 
 EquipmentConfigWidget::EquipmentConfigWidget(QWidget* parent)
     : QTabWidget(parent)
@@ -66,6 +69,7 @@ bool EquipmentConfigWidget::loadFromJson(const QString& jsonFile)
     }
     
     QJsonObject rootObj = doc.object();
+    m_lastRootObject = rootObj;
     if (!rootObj.contains("equipment_config")) {
         emit validationError(QString(u8"配置文件格式错误：缺少equipment_config节点"));
         return false;
@@ -421,6 +425,7 @@ bool EquipmentConfigWidget::saveToJson(const QString& jsonFile)
     file.close();
     
     qDebug() << QString(u8"配置保存完成: %1").arg(jsonFile);
+    m_lastRootObject = rootObj;
     return true;
 }
 
@@ -540,4 +545,21 @@ bool EquipmentConfigWidget::validateAll()
 void EquipmentConfigWidget::onConfigurationChanged()
 {
     emit configChanged();
-} 
+}
+
+bool EquipmentConfigWidget::openStructureEditor()
+{
+    // 使用原始 root 对象和当前文件构建编辑器
+    if (m_lastRootObject.isEmpty()) {
+        emit validationError(u8"当前没有加载可编辑的配置。");
+        return false;
+    }
+    ConfigEditorDialog dlg(m_lastRootObject, m_currentFilePath, this);
+    if (dlg.exec() == QDialog::Accepted && dlg.changed()) {
+        // 重新加载文件以同步模型
+        if (!m_currentFilePath.isEmpty()) {
+            return loadFromJson(m_currentFilePath);
+        }
+    }
+    return true;
+}

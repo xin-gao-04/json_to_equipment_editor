@@ -111,6 +111,11 @@ private:
         saveAsAction->setShortcut(QKeySequence::SaveAs);
         connect(saveAsAction, &QAction::triggered, this, &MainWindow::saveAsConfigFile);
         
+        QAction* editModeAction = fileMenu->addAction(u8"结构编辑模式(&E)...");
+        connect(editModeAction, &QAction::triggered, this, [this]() {
+            m_configWidget->openStructureEditor();
+        });
+        
         fileMenu->addSeparator();
         QAction* exitAction = fileMenu->addAction(u8"退出(&X)");
         exitAction->setShortcut(QKeySequence::Quit);
