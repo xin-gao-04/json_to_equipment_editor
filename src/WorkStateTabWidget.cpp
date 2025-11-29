@@ -87,11 +87,18 @@ void WorkStateTabWidget::createParameterWidgets()
             labelText += QString(" (%1)").arg(param->getUnit());
         }
         QLabel* labelWidget = new QLabel(labelText);
-        formLayout->addRow(labelWidget, editor);
+        QWidget* rowContainer = new QWidget(paramGroup);
+        QHBoxLayout* rowLayout = new QHBoxLayout(rowContainer);
+        rowLayout->setContentsMargins(0, 0, 0, 0);
+        rowLayout->setSpacing(8);
+        rowLayout->addWidget(labelWidget);
+        rowLayout->addWidget(editor, 1);
+        formLayout->addRow(rowContainer);
         
         // 存储参数引用以便后续更新
         m_parameterInstances[param->getId()] = param;
         m_labelWidgets[param->getId()] = labelWidget;
+        m_rowWidgets[param->getId()] = rowContainer;
         
         qDebug() << QString(u8"创建参数编辑器: %1, 值: %2").arg(param->getLabel()).arg(valueToSet.toString());
     }
@@ -142,6 +149,9 @@ void WorkStateTabWidget::createParameterWidgets()
                 m_parameterInstances[pid]->setVisible(visible);
                 if (m_labelWidgets.contains(pid)) {
                     m_labelWidgets[pid]->setVisible(visible);
+                }
+                if (m_rowWidgets.contains(pid)) {
+                    m_rowWidgets[pid]->setVisible(visible);
                 }
             }
         };

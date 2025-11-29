@@ -30,6 +30,7 @@ private:
     QWidget* m_contentWidget;
     QMap<QString, ParameterItem*> m_parameterInstances; // 存储每个参数的实例
     QMap<QString, QLabel*> m_labelWidgets; // 存储label以便联动显隐
+    QMap<QString, QWidget*> m_rowWidgets; // 存储行容器以便整体显隐
     QPushButton* m_saveButton;
     
     void createParameterWidgets();
