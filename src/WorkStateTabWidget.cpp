@@ -103,6 +103,16 @@ void WorkStateTabWidget::createParameterWidgets()
         qDebug() << QString(u8"创建参数编辑器: %1, 值: %2").arg(param->getLabel()).arg(valueToSet.toString());
     }
     
+    // 统一标签宽度，确保对齐
+    int maxLabelWidth = 0;
+    for (auto it = m_labelWidgets.begin(); it != m_labelWidgets.end(); ++it) {
+        maxLabelWidth = qMax(maxLabelWidth, it.value()->sizeHint().width());
+    }
+    for (auto it = m_labelWidgets.begin(); it != m_labelWidgets.end(); ++it) {
+        it.value()->setMinimumWidth(maxLabelWidth);
+        it.value()->setMaximumWidth(maxLabelWidth);
+    }
+    
     // 确保设备实例有这个状态的值
     if (!currentValues.isEmpty()) {
         m_device->setWorkStateValues(m_stateIndex, currentValues);
