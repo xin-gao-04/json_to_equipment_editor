@@ -254,6 +254,11 @@ bool EquipmentConfigWidget::saveCurrentValues()
 
 bool EquipmentConfigWidget::saveToJson(const QString& jsonFile)
 {
+    if (!validateAll()) {
+        emit validationError(u8"保存失败：存在非法或超出范围的输入，请检查高亮字段。");
+        return false;
+    }
+    
     // 先尝试读取原有文件内容
     QJsonObject rootObj;
     
@@ -490,8 +495,45 @@ void EquipmentConfigWidget::updateAllVisibility()
 
 bool EquipmentConfigWidget::validateAll()
 {
-    // TODO: 实现验证逻辑
-    qDebug() << "验证逻辑待实现";
+    QStringList errors;
+    
+    for (EquipmentType* equipType : m_equipmentTypes) {
+        const auto& basicParams = equipType->getBasicParameters();
+        WorkStateTemplate* wsTemplate = equipType->getWorkStateTemplate();
+        
+        const QList<DeviceInstance*>& devices = m_deviceInstances.value(equipType->getTypeId());
+        for (DeviceInstance* device : devices) {
+            // 基本参数校验
+            for (ParameterItem* param : basicParams) {
+                QVariant val = device->getBasicValue(param->getId());
+                if (!param->validate(val)) {
+                    errors << QString(u8"设备[%1] 基本参数[%2] 输入非法或超出范围").arg(device->getDeviceName(), param->getLabel());
+                }
+            }
+            
+            // 工作状态参数校验
+            if (wsTemplate) {
+                for (int stateIdx = 0; stateIdx < device->getWorkStateCount(); ++stateIdx) {
+                    QVariantMap stateValues = device->getWorkStateValues(stateIdx);
+                    for (ParameterItem* param : wsTemplate->getParameters()) {
+                        QVariant val = stateValues.value(param->getId(), param->getDefaultValue());
+                        if (!param->validate(val)) {
+                            errors << QString(u8"设备[%1] 工作状态%2 参数[%3] 输入非法或超出范围")
+                                       .arg(device->getDeviceName())
+                                       .arg(stateIdx + 1)
+                                       .arg(param->getLabel());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    if (!errors.isEmpty()) {
+        emit validationError(errors.join("\n"));
+        return false;
+    }
+    
     return true;
 }
 

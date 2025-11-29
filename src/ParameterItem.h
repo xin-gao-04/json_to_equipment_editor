@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QStringList>
 #include <QObject>
+#include <QRegularExpression>
 
 class ParameterItem : public QObject {
     Q_OBJECT
@@ -48,6 +49,7 @@ public:
     
     // 从JSON加载
     static ParameterItem* fromJson(const QJsonObject& json);
+    static QRegularExpression stringAllowedPattern();
 
 private:
     QString m_id;

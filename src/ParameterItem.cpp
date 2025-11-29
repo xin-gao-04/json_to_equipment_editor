@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QJsonArray>
 #include <QDebug>
+#include <QRegularExpressionValidator>
 
 ParameterItem::ParameterItem(const QString& id, const QString& label, const QString& type)
     : m_id(id), m_label(label), m_type(type)
@@ -26,7 +27,11 @@ bool ParameterItem::validate(const QVariant& value) const
         return doubleVal >= m_minValue && doubleVal <= m_maxValue;
     }
     else if (m_type == "string") {
-        return !value.toString().isEmpty();
+        const QString text = value.toString();
+        if (text.isEmpty()) {
+            return false;
+        }
+        return stringAllowedPattern().match(text).hasMatch();
     }
     else if (m_type == "enum") {
         return m_options.contains(value.toString());
@@ -71,6 +76,7 @@ QWidget* ParameterItem::createEditor(QWidget* parent)
     else if (m_type == "string") {
         QLineEdit* lineEdit = new QLineEdit(parent);
         lineEdit->setText(m_currentValue.isValid() ? m_currentValue.toString() : m_defaultValue.toString());
+        lineEdit->setValidator(new QRegularExpressionValidator(stringAllowedPattern(), lineEdit));
         
         QObject::connect(lineEdit, &QLineEdit::textChanged, [this](const QString& text) {
             m_currentValue = text;
@@ -210,4 +216,10 @@ ParameterItem* ParameterItem::fromJson(const QJsonObject& json)
     }
     
     return item;
-} 
+}
+
+QRegularExpression ParameterItem::stringAllowedPattern()
+{
+    // 仅允许数字、空白、逗号、方括号、点和负号，便于输入数组或数值列表
+    return QRegularExpression(QStringLiteral("^[0-9\\s,\\[\\]\\.-]*$"));
+}
