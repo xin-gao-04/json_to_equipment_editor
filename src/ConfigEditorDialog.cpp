@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QTextEdit>
 #include <QFormLayout>
+#include <QDateTime>
 
 ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString& filePath, QWidget* parent)
     : QDialog(parent), m_rootObj(rootObj), m_filePath(filePath)
@@ -120,7 +121,8 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
     rightPanel->addLayout(dcLayout);
     rightPanel->addLayout(rightLayout, 1);
 
-    QHBoxLayout* mainLayout = new QHBoxLayout(this);
+    // 主体区域布局（不直接挂到 this，避免重复 setLayout 警告）
+    QHBoxLayout* mainLayout = new QHBoxLayout;
     mainLayout->addLayout(typeLayout, 1);
     mainLayout->addLayout(rightPanel, 2);
 
@@ -447,7 +449,8 @@ void ConfigEditorDialog::backupFile()
 {
     if (m_filePath.isEmpty()) return;
     QFileInfo fi(m_filePath);
-    QString backup = fi.path() + "/" + fi.completeBaseName() + ".backup.json";
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    QString backup = fi.path() + "/" + fi.completeBaseName() + ".backup_" + timestamp + ".json";
     QFile::remove(backup);
     QFile::copy(m_filePath, backup);
 }
@@ -472,13 +475,11 @@ void ConfigEditorDialog::writeFile()
 
 void ConfigEditorDialog::onSave()
 {
-    if (!m_changed) {
-        accept();
-        return;
+    if (m_changed) {
+        backupFile();
+        writeFile();
     }
-    backupFile();
-    writeFile();
-    m_changed = false;
+    // 保持 m_changed 为 true 以便上层重新加载最新文件
     accept();
 }
 

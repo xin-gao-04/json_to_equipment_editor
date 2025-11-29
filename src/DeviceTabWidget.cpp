@@ -390,24 +390,32 @@ void DeviceTabWidget::updateWorkStateTabs()
     }
     int newStateCount = desiredCount;
     
-    // 计算当前工作状态tab的数量（排除基本参数tab）
     int currentWorkStateCount = 0;
     for (int i = 1; i < count(); ++i) { // 跳过基本参数tab(0)
-        if (tabText(i).contains(u8"工作状态")) {
+        if (qobject_cast<WorkStateTabWidget*>(widget(i))) {
             currentWorkStateCount++;
         }
     }
     
     if (newStateCount == currentWorkStateCount) {
+        // 数量一致时刷新标签文本，防止自定义标签被默认覆盖
+        for (int i = 1; i < count(); ++i) {
+            WorkStateTabWidget* w = qobject_cast<WorkStateTabWidget*>(widget(i));
+            if (!w) continue;
+            QString tabName = (tmpl && (i - 1) < tmpl->getStateTabTitles().size() && !tmpl->getStateTabTitles().at(i - 1).isEmpty())
+                                ? tmpl->getStateTabTitles().at(i - 1)
+                                : QString(u8"工作状态 %1").arg(i);
+            setTabText(i, tabName);
+        }
         return; // 没有变化
     }
     
     // 移除所有工作状态tab，保留基本参数tab
     for (int i = count() - 1; i >= 1; --i) { // 从后往前删除，跳过基本参数tab(0)
-        if (tabText(i).contains(u8"工作状态")) {
-            QWidget* widget = this->widget(i);
+        if (qobject_cast<WorkStateTabWidget*>(widget(i))) {
+            QWidget* tabWidget = this->widget(i);
             removeTab(i);
-            delete widget;
+            delete tabWidget;
         }
     }
     
