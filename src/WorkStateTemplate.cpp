@@ -164,5 +164,16 @@ WorkStateTemplate* WorkStateTemplate::fromJson(const QJsonObject& json)
         }
     }
     
+    // 自定义状态标签和可选的数量覆盖
+    if (json.contains("state_tab_titles")) {
+        QJsonArray arr = json["state_tab_titles"].toArray();
+        for (const auto& v : arr) {
+            tmpl->m_stateTabTitles << v.toString();
+        }
+    }
+    if (json.contains("state_tab_count")) {
+        tmpl->m_stateTabCountOverride = json["state_tab_count"].toInt(-1);
+    }
+    
     return tmpl;
 }

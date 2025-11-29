@@ -128,11 +128,25 @@ void DeviceTabWidget::createWorkStateTabs()
         return;
     }
     
+    WorkStateTemplate* tmpl = m_device->getEquipmentType()->getWorkStateTemplate();
     int stateCount = m_device->getWorkStateCount();
+    // 考虑模板定义的标签数量和可选覆盖
+    int desiredCount = stateCount;
+    if (tmpl->getStateTabCountOverride() > 0) {
+        desiredCount = qMax(desiredCount, tmpl->getStateTabCountOverride());
+    }
+    desiredCount = qMax(desiredCount, tmpl->getStateTabTitles().size());
+    if (desiredCount != stateCount) {
+        m_device->setWorkStateCount(desiredCount);
+        stateCount = desiredCount;
+    }
     
     for (int i = 0; i < stateCount; ++i) {
-        WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, this);
-        addTab(stateWidget, QString(u8"工作状态 %1").arg(i + 1));
+        QString tabName = (i < tmpl->getStateTabTitles().size() && !tmpl->getStateTabTitles().at(i).isEmpty())
+                            ? tmpl->getStateTabTitles().at(i)
+                            : QString(u8"工作状态 %1").arg(i + 1);
+        WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, tabName, this);
+        addTab(stateWidget, tabName);
     }
     
     m_lastStateCount = stateCount;
@@ -362,7 +376,19 @@ void DeviceTabWidget::updateWorkStateTabs()
         return;
     }
     
-    int newStateCount = m_device->getWorkStateCount();
+    WorkStateTemplate* tmpl = m_device->getEquipmentType() ? m_device->getEquipmentType()->getWorkStateTemplate() : nullptr;
+    int baseCount = m_device->getWorkStateCount();
+    int desiredCount = baseCount;
+    if (tmpl) {
+        if (tmpl->getStateTabCountOverride() > 0) {
+            desiredCount = qMax(desiredCount, tmpl->getStateTabCountOverride());
+        }
+        desiredCount = qMax(desiredCount, tmpl->getStateTabTitles().size());
+    }
+    if (desiredCount != baseCount) {
+        m_device->setWorkStateCount(desiredCount);
+    }
+    int newStateCount = desiredCount;
     
     // 计算当前工作状态tab的数量（排除基本参数tab）
     int currentWorkStateCount = 0;
@@ -387,8 +413,11 @@ void DeviceTabWidget::updateWorkStateTabs()
     
     // 重新创建工作状态tab
     for (int i = 0; i < newStateCount; ++i) {
-        WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, this);
-        addTab(stateWidget, QString(u8"工作状态 %1").arg(i + 1));
+        QString tabName = (tmpl && i < tmpl->getStateTabTitles().size() && !tmpl->getStateTabTitles().at(i).isEmpty())
+                            ? tmpl->getStateTabTitles().at(i)
+                            : QString(u8"工作状态 %1").arg(i + 1);
+        WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, tabName, this);
+        addTab(stateWidget, tabName);
     }
     
     qDebug() << "Updated work state tabs. New count:" << newStateCount;
@@ -443,6 +472,7 @@ void DeviceTabWidget::updateVisibility()
     }
     
     bool deviceEnabled = m_device->isEnabled();
+    WorkStateTemplate* tmpl = m_device->getEquipmentType() ? m_device->getEquipmentType()->getWorkStateTemplate() : nullptr;
     
     // 收集所有工作状态标签页
     QList<QWidget*> workStateTabs;
@@ -486,6 +516,12 @@ void DeviceTabWidget::updateVisibility()
     } else {
         // 设备启用：确保工作状态标签页正确显示
         int expectedStateCount = m_device->getWorkStateCount();
+        if (tmpl) {
+            if (tmpl->getStateTabCountOverride() > 0) {
+                expectedStateCount = qMax(expectedStateCount, tmpl->getStateTabCountOverride());
+            }
+            expectedStateCount = qMax(expectedStateCount, tmpl->getStateTabTitles().size());
+        }
         
         // 如果没有工作状态标签页或数量不对，重新创建
         if (workStateTabs.size() != expectedStateCount) {
@@ -499,14 +535,24 @@ void DeviceTabWidget::updateVisibility()
             
             // 重新创建正确数量的工作状态tabs
             for (int i = 0; i < expectedStateCount; ++i) {
-                WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, this);
-                addTab(stateWidget, QString(u8"工作状态 %1").arg(i + 1));
+                QString tabName = (tmpl && i < tmpl->getStateTabTitles().size() && !tmpl->getStateTabTitles().at(i).isEmpty())
+                                    ? tmpl->getStateTabTitles().at(i)
+                                    : QString(u8"工作状态 %1").arg(i + 1);
+                WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, tabName, this);
+                addTab(stateWidget, tabName);
             }
         } else {
             // 显示现有的工作状态标签页
-            for (QWidget* tabWidget : workStateTabs) {
-                if (indexOf(tabWidget) < 0) { // 如果标签页不在tab widget中
-                    addTab(tabWidget, tabWidget->windowTitle());
+            for (int i = 0; i < workStateTabs.size(); ++i) {
+                QWidget* tabWidget = workStateTabs[i];
+                QString tabName = (tmpl && i < tmpl->getStateTabTitles().size() && !tmpl->getStateTabTitles().at(i).isEmpty())
+                                    ? tmpl->getStateTabTitles().at(i)
+                                    : QString(u8"工作状态 %1").arg(i + 1);
+                int idxTab = indexOf(tabWidget);
+                if (idxTab < 0) { // 如果标签页不在tab widget中
+                    addTab(tabWidget, tabName);
+                } else {
+                    setTabText(idxTab, tabName);
                 }
                 tabWidget->show();
             }

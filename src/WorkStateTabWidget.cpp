@@ -18,8 +18,8 @@
 #include <QFile>
 #include <QMessageBox>
 
-WorkStateTabWidget::WorkStateTabWidget(DeviceInstance* device, int stateIndex, QWidget* parent)
-    : QScrollArea(parent), m_device(device), m_stateIndex(stateIndex), m_saveButton(nullptr)
+WorkStateTabWidget::WorkStateTabWidget(DeviceInstance* device, int stateIndex, const QString& displayTitle, QWidget* parent)
+    : QScrollArea(parent), m_device(device), m_stateIndex(stateIndex), m_displayTitle(displayTitle), m_saveButton(nullptr)
 {
     setWidgetResizable(true);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -44,7 +44,9 @@ void WorkStateTabWidget::createParameterWidgets()
     WorkStateTemplate* tmpl = m_device->getEquipmentType()->getWorkStateTemplate();
     
     // 创建参数组
-    QGroupBox* paramGroup = new QGroupBox(QString(u8"工作状态 %1 参数").arg(m_stateIndex + 1));
+    QString groupTitle = m_displayTitle.isEmpty() ? QString(u8"工作状态 %1 参数").arg(m_stateIndex + 1)
+                                                  : QString(u8"%1 参数").arg(m_displayTitle);
+    QGroupBox* paramGroup = new QGroupBox(groupTitle);
     QFormLayout* formLayout = new QFormLayout(paramGroup);
     
     // 获取当前状态的值
