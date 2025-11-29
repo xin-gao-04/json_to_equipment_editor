@@ -135,6 +135,8 @@ void DeviceTabWidget::createWorkStateTabs()
         addTab(stateWidget, QString(u8"工作状态 %1").arg(i + 1));
     }
     
+    m_lastStateCount = stateCount;
+    
     // 创建设备级保存按钮（作为最后一个tab）
     createSaveButtons();
 }
@@ -390,6 +392,7 @@ void DeviceTabWidget::updateWorkStateTabs()
     }
     
     qDebug() << "Updated work state tabs. New count:" << newStateCount;
+    m_lastStateCount = newStateCount;
 }
 
 void DeviceTabWidget::onBasicParameterChanged()

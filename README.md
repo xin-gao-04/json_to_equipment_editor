@@ -8,6 +8,14 @@ qt 5.5.1 c++2015 cmake
 
 C:\Qt\Qt5.9.1\5.9.1\msvc2015_64\lib\cmake\Qt5
 
+## 项目概览（快速了解）
+- 目的：加载/编辑/保存装备参数配置（JSON），支持多设备、多工作状态。
+- 入口：`src/main.cpp` 创建 `EquipmentConfigWidget`，默认加载 `config/equipment_config.json`。
+- 数据模型：`EquipmentType`（类型/模板）、`DeviceInstance`（实例值）、`WorkStateTemplate`（状态模板）、`ParameterItem`（单个参数+校验）。
+- UI 结构：`EquipmentConfigWidget`（设备类型 Tab）→ `DeviceTabWidget`（基本参数 + 工作状态 Tabs）→ `WorkStateTabWidget`（具体参数表单）。
+- 校验：保存前执行全量校验；数值按 min/max；字符串受正则限制（数字/空白/逗号/方括号/点/负号，便于数组输入）。
+- 保存：`autoSave` 写回当前文件；设备/工作状态 Tab 可单独导出。序列化时保留参数定义与当前值。
+
 ## 当前实现速览
 - 入口：`src/main.cpp` 创建 `EquipmentConfigWidget`，默认加载 `config/equipment_config.json`。
 - 数据模型：`EquipmentType`（类型 + 基本参数模板 + 工作状态模板）、`DeviceInstance`（实例值 + 工作状态值列表）、`WorkStateTemplate`（工作状态参数模板）、`ParameterItem`（单个参数的编辑/校验/默认值）。
@@ -28,11 +36,9 @@ C:\Qt\Qt5.9.1\5.9.1\msvc2015_64\lib\cmake\Qt5
 - 设备或工作状态 Tab 底部的保存按钮可单独导出对应片段 JSON，便于局部调试。
 
 ## 已知问题 / 待解决
-- `src/ParameterItem.cpp:185` 只解析 `range`，而现有 JSON 普遍使用 `min`/`max`，导致数值范围退化为默认的 0–100。
-- `src/DeviceTabWidget.cpp:424` 使用静态 `lastStateCount`，多个设备共用时会阻断部分设备的工作状态 Tab 刷新，应改为成员级别缓存。
-- `src/WorkStateTabWidget.cpp:52`、`src/DeviceTabWidget.cpp:62` 动态创建的 `ParameterItem` 未设置 QObject 父对象也没有释放，长时间编辑存在内存泄漏。
-- `src/EquipmentConfigWidget.cpp:491` 的 `validateAll` 仍是 TODO，缺少全局参数合法性校验链路。
 - 序列化时所有值写成字符串且 `double` 仅保留 2 位小数，若需要保持精度或严格类型需调整。
+- 工作状态/基本参数的自动轮询更新使用定时器，重绘/性能可进一步优化为信号驱动。
+- 字符串正则限制目前仅允许数字/空白/逗号/方括号/点/负号，如需录入字母或更复杂格式需放宽。
 
 ## 需求梳理：
 
