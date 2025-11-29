@@ -10,6 +10,8 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QFileInfo>
+#include <QApplication>
+#include <QPalette>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -145,9 +147,119 @@ private:
     EquipmentConfigWidget* m_configWidget;
 };
 
+// 全局样式，支持通过环境变量 DISABLE_CUSTOM_STYLE 一键关闭
+static void applyGlobalStyle()
+{
+    if (!qEnvironmentVariableIsEmpty("DISABLE_CUSTOM_STYLE")) {
+        return;
+    }
+
+    QString style = R"(
+        QWidget {
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            font-size: 12px;
+            color: #1f2d3d;
+        }
+        QMainWindow, QDialog, QTabWidget::pane, QScrollArea {
+            background: #f7f9fc;
+        }
+        QGroupBox {
+            border: 1px solid #d0d7e2;
+            border-radius: 6px;
+            margin-top: 10px;
+            padding: 8px 10px 10px 10px;
+            background: #ffffff;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 4px;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        QLabel {
+            color: #334155;
+        }
+        QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+            border: 1px solid #c3cfe2;
+            border-radius: 5px;
+            padding: 4px 6px;
+            background: #ffffff;
+            selection-background-color: #2563eb;
+            selection-color: #ffffff;
+        }
+        QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+            border: 1px solid #2563eb;
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.18);
+        }
+        QComboBox::drop-down {
+            border: none;
+            width: 18px;
+        }
+        QComboBox::down-arrow {
+            image: none;
+            border: none;
+        }
+        QPushButton {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-weight: 600;
+        }
+        QPushButton:hover {
+            background: #1d4ed8;
+        }
+        QPushButton:pressed {
+            background: #1e40af;
+        }
+        QPushButton:disabled {
+            background: #a5b4fc;
+            color: #f1f5f9;
+        }
+        QTabBar::tab {
+            background: #e5ecf6;
+            padding: 6px 14px;
+            margin: 2px;
+            border-radius: 6px 6px 0 0;
+            color: #1f2d3d;
+        }
+        QTabBar::tab:selected {
+            background: #ffffff;
+            color: #2563eb;
+            font-weight: 600;
+            border: 1px solid #d0d7e2;
+            border-bottom: 1px solid #ffffff;
+        }
+        QTabBar::tab:hover {
+            background: #f1f5fd;
+        }
+        QScrollBar:vertical {
+            background: transparent;
+            width: 10px;
+            margin: 4px;
+        }
+        QScrollBar::handle:vertical {
+            background: #c3d0e8;
+            border-radius: 5px;
+        }
+        QScrollBar::handle:vertical:hover {
+            background: #9fb6e1;
+        }
+        QStatusBar {
+            background: #e5ecf6;
+        }
+    )";
+
+    qApp->setStyleSheet(style);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    applyGlobalStyle();
     
     app.setApplicationName("EquipmentConfig");
     app.setApplicationVersion("1.0");
