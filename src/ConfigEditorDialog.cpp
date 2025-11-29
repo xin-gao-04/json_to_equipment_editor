@@ -124,21 +124,19 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
     mainLayout->addLayout(typeLayout, 1);
     mainLayout->addLayout(rightPanel, 2);
 
-    QDialogButtonBox* bottomButtons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Close);
-    m_saveButton = bottomButtons->button(QDialogButtonBox::Save);
-    if (m_saveButton) {
-        m_saveButton->setText(u8"保存结构并重载");
-        connect(m_saveButton, &QPushButton::clicked, this, &ConfigEditorDialog::onSave);
-    }
-    QPushButton* closeBtn = bottomButtons->button(QDialogButtonBox::Close);
-    if (closeBtn) {
-        closeBtn->setText(u8"关闭");
-    }
-    connect(bottomButtons, &QDialogButtonBox::rejected, this, &ConfigEditorDialog::reject);
+    // 底部操作按钮：显式放置，避免样式导致的不可见问题
+    m_saveButton = new QPushButton(u8"保存结构并重载");
+    QPushButton* closeBtn = new QPushButton(u8"关闭");
+    connect(m_saveButton, &QPushButton::clicked, this, &ConfigEditorDialog::onSave);
+    connect(closeBtn, &QPushButton::clicked, this, &ConfigEditorDialog::reject);
+    QHBoxLayout* actionLayout = new QHBoxLayout;
+    actionLayout->addStretch();
+    actionLayout->addWidget(m_saveButton);
+    actionLayout->addWidget(closeBtn);
 
     QVBoxLayout* outer = new QVBoxLayout;
     outer->addLayout(mainLayout, 1);
-    outer->addWidget(bottomButtons);
+    outer->addLayout(actionLayout);
     setLayout(outer);
 
     updateTypeList();
