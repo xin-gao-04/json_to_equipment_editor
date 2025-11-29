@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QApplication>
 #include <QPalette>
+#include <QTextStream>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -190,7 +191,6 @@ static void applyGlobalStyle()
         }
         QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {
             border: 1px solid #2563eb;
-            box-shadow: 0 0 0 2px rgba(37,99,235,0.18);
         }
         QComboBox::drop-down {
             border: none;
@@ -255,10 +255,28 @@ static void applyGlobalStyle()
     qApp->setStyleSheet(style);
 }
 
+// 简易日志过滤：默认屏蔽 qDebug（避免控制台乱码和刷屏），
+// 设置环境变量 ENABLE_DEBUG_LOG 可重新启用
+static void installMessageHandler()
+{
+    static bool verbose = !qEnvironmentVariableIsEmpty("ENABLE_DEBUG_LOG");
+    qInstallMessageHandler([](QtMsgType type, const QMessageLogContext& ctx, const QString& msg) {
+        if (type == QtDebugMsg && !verbose) {
+            return;
+        }
+        QByteArray utf8 = msg.toUtf8();
+        FILE* out = (type == QtDebugMsg || type == QtInfoMsg) ? stdout : stderr;
+        fprintf(out, "%s\n", utf8.constData());
+        fflush(out);
+        Q_UNUSED(ctx);
+    });
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    installMessageHandler();
     applyGlobalStyle();
     
     app.setApplicationName("EquipmentConfig");
