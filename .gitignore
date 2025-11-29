@@ -1,0 +1,25 @@
+build/
+.vscode/
+
+# Qt / MSVC artifacts
+*.user
+*.user.*
+*.obj
+*.pdb
+*.exe
+*.dll
+*.ilk
+*.ncb
+*.suo
+*.cache
+*.qtdsproj
+*.qm
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Logs
+*.log

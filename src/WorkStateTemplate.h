@@ -1,0 +1,40 @@
+﻿#pragma once
+
+#include "ParameterItem.h"
+#include <QList>
+#include <QJsonObject>
+#include <QWidget>
+#include <QVariantMap>
+#include <QMap>
+
+class WorkStateTemplate {
+public:
+    WorkStateTemplate(const QString& templateId, const QString& name);
+    ~WorkStateTemplate();
+
+    QString getTemplateId() const { return m_templateId; }
+    QString getTemplateName() const { return m_name; }
+    QString getName() const { return m_name; }
+    const QList<ParameterItem*>& getParameters() const { return m_parameters; }
+    
+    void addParameter(ParameterItem* parameter);
+    ParameterItem* getParameter(const QString& id) const;
+    
+    // 创建状态参数编辑界面
+    QWidget* createStateWidget(int stateIndex, QWidget* parent);
+    
+    // 获取/设置状态值
+    QVariantMap getStateValues(int stateIndex) const;
+    void setStateValues(int stateIndex, const QVariantMap& values);
+    
+    // 从JSON加载
+    static WorkStateTemplate* fromJson(const QJsonObject& json);
+
+private:
+    QString m_templateId;
+    QString m_name;
+    QList<ParameterItem*> m_parameters;
+    
+    // 存储每个状态实例的参数值 stateIndex -> (parameterId -> value)
+    mutable QMap<int, QVariantMap> m_stateValues;
+}; 

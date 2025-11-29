@@ -1,0 +1,824 @@
+{
+    "equipment_config": {
+        "equipment_types": [
+            {
+                "basic_parameters": [
+                    {
+                        "default": "默认雷达",
+                        "id": "radar_name",
+                        "label": "雷达名称",
+                        "type": "string",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "radar_system",
+                        "label": "雷达体制",
+                        "options": [
+                            "0-常规",
+                            "1-MTI",
+                            "2-MTD",
+                            "3-PD"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "1",
+                        "id": "radar_model",
+                        "label": "雷达型号",
+                        "options": [
+                            "1-红旗17",
+                            "2-瞄12",
+                            "3-Q07",
+                            "4-Q03",
+                            "5-天兵",
+                            "6-捷羚",
+                            "7-道尔",
+                            "8-通古斯卡"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "antenna_pattern_type",
+                        "label": "天线方向图类型",
+                        "options": [
+                            "0-辛格函数",
+                            "1-高斯函数",
+                            "2-余弦函数",
+                            "3-余割平方函数",
+                            "4-单脉冲",
+                            "5-实测表"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "antenna_gain",
+                        "label": "天线增益",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "dB"
+                    },
+                    {
+                        "default": "0",
+                        "id": "vertical_beam_width",
+                        "label": "垂直波束宽度",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "°"
+                    },
+                    {
+                        "default": "0",
+                        "id": "horizontal_beam_width",
+                        "label": "水平波束宽度",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "°"
+                    },
+                    {
+                        "default": "0",
+                        "id": "transmit_peak_power",
+                        "label": "发射峰值功率",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "W"
+                    },
+                    {
+                        "default": "0",
+                        "id": "transmit_loss",
+                        "label": "发射损耗",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "dB"
+                    },
+                    {
+                        "default": "1",
+                        "id": "radiation_source_id",
+                        "label": "辐射源ID",
+                        "type": "string",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "arrival_time",
+                        "label": "到达时间",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0x01",
+                        "id": "signal_type",
+                        "label": "信号类型",
+                        "options": [
+                            "0x01-连续波",
+                            "0x02-常规",
+                            "0x04-载频捷变",
+                            "0x08-载频跳变",
+                            "0x10-载频滑变",
+                            "0x20-重复周期参差",
+                            "0x40-重复周期参差抖动",
+                            "0x80-重复周期抖动",
+                            "0x100-重复周期跳变",
+                            "0x200-重复周期滑变"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "modulation_style",
+                        "label": "调制样式",
+                        "options": [
+                            "0-无调频",
+                            "1-线性调频",
+                            "2-幅度调频",
+                            "3-幅度调频",
+                            "4-相位调制"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "pulse_group_count",
+                        "label": "脉组数",
+                        "max": 100,
+                        "min": 0,
+                        "type": "int",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "carrier_frequency_count",
+                        "label": "载频数",
+                        "max": 100,
+                        "min": 0,
+                        "type": "int",
+                        "unit": ""
+                    },
+                    {
+                        "default": "",
+                        "id": "carrier_frequency_values",
+                        "label": "载频值",
+                        "type": "string",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "repeat_period_count",
+                        "label": "重复周期数",
+                        "max": 100,
+                        "min": 0,
+                        "type": "int",
+                        "unit": ""
+                    },
+                    {
+                        "default": "",
+                        "id": "repeat_period_values",
+                        "label": "重复周期值",
+                        "type": "string",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "pulse_width_count",
+                        "label": "脉宽数",
+                        "max": 100,
+                        "min": 0,
+                        "type": "int",
+                        "unit": ""
+                    },
+                    {
+                        "default": "",
+                        "id": "pulse_width_values",
+                        "label": "脉宽值",
+                        "type": "string",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "carrier_frequency_agility_range",
+                        "label": "载频捷变范围",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "carrier_frequency_agility_step",
+                        "label": "载频捷变步进",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "repeat_period_agility_range",
+                        "label": "重复周期捷变范围",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "repeat_period_agility_step",
+                        "label": "重复周期捷变步进",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "pulse_width_agility_range",
+                        "label": "脉宽捷变范围",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "pulse_width_agility_step",
+                        "label": "脉宽捷变步进",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "intra_pulse_frequency_coding",
+                        "label": "脉内频率编码",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "",
+                        "id": "intra_pulse_phase_coding",
+                        "label": "脉内相位编码",
+                        "type": "string",
+                        "unit": ""
+                    },
+                    {
+                        "default": "1",
+                        "id": "target_type",
+                        "label": "目标类型",
+                        "options": [
+                            "1-机扫雷达",
+                            "2-相扫雷达"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "1",
+                        "id": "antenna_scan_type",
+                        "label": "天线扫描类型",
+                        "options": [
+                            "1-跟踪",
+                            "2-圆扫",
+                            "3-扇扫",
+                            "4-电扫"
+                        ],
+                        "type": "enum",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "antenna_scan_period",
+                        "label": "天线扫描周期",
+                        "max": 100,
+                        "min": 0,
+                        "type": "int",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "antenna_scan_start_angle",
+                        "label": "天线扫描起始角度",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "度"
+                    },
+                    {
+                        "default": "0",
+                        "id": "antenna_scan_end_angle",
+                        "label": "天线扫描终止角度",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "度"
+                    },
+                    {
+                        "default": "0",
+                        "id": "antenna_main_beam_width_dwell_time",
+                        "label": "天线主波束宽度/驻留时间",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    },
+                    {
+                        "default": "0",
+                        "id": "current_beat_signal_amplitude",
+                        "label": "当前节拍时刻信号幅度",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": "dBm"
+                    },
+                    {
+                        "default": "0",
+                        "id": "signal_loss_rate",
+                        "label": "信号丢失率",
+                        "max": 100,
+                        "min": 0,
+                        "type": "double",
+                        "unit": ""
+                    }
+                ],
+                "device_count": 1,
+                "device_instances": [
+                    {
+                        "basic_values": {
+                            "antenna_gain": "0",
+                            "antenna_main_beam_width_dwell_time": "0",
+                            "antenna_pattern_type": "3-余割平方函数",
+                            "antenna_scan_end_angle": "0",
+                            "antenna_scan_period": "0",
+                            "antenna_scan_start_angle": "0",
+                            "antenna_scan_type": "1",
+                            "arrival_time": "0",
+                            "carrier_frequency_agility_range": "0",
+                            "carrier_frequency_agility_step": "0",
+                            "carrier_frequency_count": "0",
+                            "carrier_frequency_values": "12",
+                            "current_beat_signal_amplitude": "0",
+                            "horizontal_beam_width": "0",
+                            "intra_pulse_frequency_coding": "1",
+                            "intra_pulse_phase_coding": "12",
+                            "modulation_style": "0",
+                            "pulse_group_count": "0",
+                            "pulse_width_agility_range": "5",
+                            "pulse_width_agility_step": "0",
+                            "pulse_width_count": "0",
+                            "pulse_width_values": "12",
+                            "radar_enabled": "1",
+                            "radar_model": "8-通古斯卡",
+                            "radar_name": "默认雷达",
+                            "radar_system": "0",
+                            "radiation_source_id": "1",
+                            "repeat_period_agility_range": "0",
+                            "repeat_period_agility_step": "0",
+                            "repeat_period_count": "0",
+                            "repeat_period_values": "12",
+                            "signal_loss_rate": "0",
+                            "signal_type": "0x01",
+                            "target_type": "1",
+                            "transmit_loss": "0",
+                            "transmit_peak_power": "0",
+                            "vertical_beam_width": "0",
+                            "work_state_count": "0"
+                        },
+                        "device_id": "radar_0",
+                        "device_name": "雷达设备 1",
+                        "work_states": [
+                        ]
+                    }
+                ],
+                "type_id": "radar",
+                "type_name": "雷达设备",
+                "work_state_template": {
+                    "parameters": [
+                    ],
+                    "template_id": "",
+                    "template_name": ""
+                }
+            },
+            {
+                "type_id": "link16",
+                "type_name": "Link16设备",
+                "device_count": 1,
+                "basic_parameters": [
+                    {
+                        "id": "work_state_count",
+                        "label": "出现个数",
+                        "type": "int",
+                        "unit": "",
+                        "default": "0",
+                        "min": 0,
+                        "max": 15
+                    }
+                ],
+                "work_state_template": {
+                    "template_id": "link16_work_state",
+                    "template_name": "Link16工作状态",
+                    "parameters": [
+                        {
+                            "id": "comm_network_id",
+                            "label": "通信网编号",
+                            "type": "string",
+                            "unit": "",
+                            "default": "1"
+                        },
+                        {
+                            "id": "frequency_count",
+                            "label": "频率个数",
+                            "type": "int",
+                            "unit": "",
+                            "default": "1",
+                            "min": 0,
+                            "max": 20
+                        },
+                        {
+                            "id": "frequencies",
+                            "label": "频率数组",
+                            "type": "string",
+                            "unit": "Hz",
+                            "default": ""
+                        },
+                        {
+                            "id": "power",
+                            "label": "功率",
+                            "type": "double",
+                            "unit": "W",
+                            "default": "100",
+                            "min": 0,
+                            "max": 100000
+                        }
+                    ]
+                },
+                "device_instances": [
+                    {
+                        "device_id": "link16_0",
+                        "device_name": "Link16设备 1",
+                        "basic_values": {
+                            "work_state_count": "2"
+                        },
+                        "work_states": [
+                            {
+                                "state_index": 0,
+                                "values": {
+                                    "comm_network_id": "1001",
+                                    "frequency_count": "3",
+                                    "frequencies": "2400000000,2450000000,2500000000",
+                                    "power": "50"
+                                }
+                            },
+                            {
+                                "state_index": 1,
+                                "values": {
+                                    "comm_network_id": "1002",
+                                    "frequency_count": "2",
+                                    "frequencies": "2300000000,2350000000",
+                                    "power": "75"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type_id": "jids",
+                "type_name": "JIDS设备",
+                "device_count": 1,
+                "basic_parameters": [
+                    {
+                        "id": "work_state_count",
+                        "label": "出现个数",
+                        "type": "int",
+                        "unit": "",
+                        "default": "0",
+                        "min": 0,
+                        "max": 15
+                    }
+                ],
+                "work_state_template": {
+                    "template_id": "jids_work_state",
+                    "template_name": "JIDS工作状态",
+                    "parameters": [
+                        {
+                            "id": "comm_network_id",
+                            "label": "通信网编号",
+                            "type": "string",
+                            "unit": "",
+                            "default": "1"
+                        },
+                        {
+                            "id": "power",
+                            "label": "功率",
+                            "type": "double",
+                            "unit": "W",
+                            "default": "100",
+                            "min": 0,
+                            "max": 100000
+                        }
+                    ]
+                },
+                "device_instances": [
+                    {
+                        "device_id": "jids_0",
+                        "device_name": "JIDS设备 1",
+                        "basic_values": {
+                            "work_state_count": "1"
+                        },
+                        "work_states": [
+                            {
+                                "state_index": 0,
+                                "values": {
+                                    "comm_network_id": "2001",
+                                    "power": "30"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type_id": "iff",
+                "type_name": "敌我识别设备",
+                "device_count": 1,
+                "basic_parameters": [
+                    {
+                        "id": "work_state_count",
+                        "label": "出现个数",
+                        "type": "int",
+                        "unit": "",
+                        "default": "0",
+                        "min": 0,
+                        "max": 15
+                    }
+                ],
+                "work_state_template": {
+                    "template_id": "iff_work_state",
+                    "template_name": "敌我识别工作状态",
+                    "parameters": [
+                        {
+                            "id": "comm_network_id",
+                            "label": "通信网编号",
+                            "type": "string",
+                            "unit": "",
+                            "default": "1"
+                        },
+                        {
+                            "id": "interrogation_mode",
+                            "label": "询问模式",
+                            "type": "enum",
+                            "unit": "",
+                            "default": "0",
+                            "options": [
+                                "0-未定义",
+                                "1-询问（模式1）",
+                                "2-询问（模式2）",
+                                "3-询问（模式3/A）",
+                                "4-询问（保密模式4）",
+                                "12-询问（模式C）",
+                                "13-询问（模式D）",
+                                "8-询问（短S模式）",
+                                "136-询问（长S模式）",
+                                "160-应答（常规模式）",
+                                "164-应答（保密模式4）",
+                                "168-应答（短S模式）",
+                                "170-应答（长S模式）"
+                            ]
+                        },
+                        {
+                            "id": "frequency",
+                            "label": "频率",
+                            "type": "double",
+                            "unit": "Hz",
+                            "default": "1030000000",
+                            "min": 0,
+                            "max": 1000000000000
+                        },
+                        {
+                            "id": "power",
+                            "label": "功率",
+                            "type": "double",
+                            "unit": "W",
+                            "default": "100",
+                            "min": 0,
+                            "max": 100000
+                        }
+                    ]
+                },
+                "device_instances": [
+                    {
+                        "device_id": "iff_0",
+                        "device_name": "敌我识别设备 1",
+                        "basic_values": {
+                            "work_state_count": "1"
+                        },
+                        "work_states": [
+                            {
+                                "state_index": 0,
+                                "values": {
+                                    "comm_network_id": "3001",
+                                    "interrogation_mode": "1",
+                                    "frequency": "1030000000",
+                                    "power": "100"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type_id": "uhf",
+                "type_name": "超短波设备",
+                "basic_parameters": [
+                    {
+                        "id": "work_state_count",
+                        "label": "出现个数",
+                        "type": "int",
+                        "unit": "",
+                        "default": "0",
+                        "min": 0,
+                        "max": 15
+                    }
+                ],
+                "work_state_template": {
+                    "template_id": "uhf_work_state",
+                    "template_name": "超短波工作状态",
+                    "parameters": [
+                        {
+                            "id": "comm_network_id",
+                            "label": "通信网编号",
+                            "type": "string",
+                            "unit": "",
+                            "default": "1"
+                        },
+                        {
+                            "id": "radio_number",
+                            "label": "电台号",
+                            "type": "int",
+                            "unit": "",
+                            "default": "1",
+                            "min": 0,
+                            "max": 255
+                        },
+                        {
+                            "id": "signal_type",
+                            "label": "信号类型",
+                            "type": "enum",
+                            "unit": "",
+                            "default": "1",
+                            "options": [
+                                "1-定频",
+                                "2-括频",
+                                "3-跳频",
+                                "4-link11",
+                                "5-link4a"
+                            ]
+                        },
+                        {
+                            "id": "start_frequency",
+                            "label": "起始频率",
+                            "type": "double",
+                            "unit": "Hz",
+                            "default": "300000000",
+                            "min": 0,
+                            "max": 1000000000000
+                        },
+                        {
+                            "id": "end_frequency",
+                            "label": "终止频率",
+                            "type": "double",
+                            "unit": "Hz",
+                            "default": "400000000",
+                            "min": 0,
+                            "max": 1000000000000
+                        },
+                        {
+                            "id": "hop_period",
+                            "label": "跳频周期",
+                            "type": "double",
+                            "unit": "微秒",
+                            "default": "1000",
+                            "min": 0,
+                            "max": 4294967295
+                        },
+                        {
+                            "id": "hop_interval",
+                            "label": "跳频间隔",
+                            "type": "double",
+                            "unit": "Hz",
+                            "default": "1000000",
+                            "min": 0,
+                            "max": 1000000000000
+                        },
+                        {
+                            "id": "frequency_count",
+                            "label": "频率个数",
+                            "type": "int",
+                            "unit": "",
+                            "default": "1",
+                            "min": 1,
+                            "max": 2048
+                        },
+                        {
+                            "id": "frequencies",
+                            "label": "频率数组",
+                            "type": "string",
+                            "unit": "Hz",
+                            "default": ""
+                        },
+                        {
+                            "id": "spread_code_rate",
+                            "label": "扩频码速率",
+                            "type": "double",
+                            "unit": "Hz",
+                            "default": "1000000",
+                            "min": 0,
+                            "max": 1000000000000
+                        },
+                        {
+                            "id": "spread_code_length",
+                            "label": "扩频码长",
+                            "type": "int",
+                            "unit": "",
+                            "default": "1023",
+                            "min": 0,
+                            "max": 65535
+                        },
+                        {
+                            "id": "signal_bandwidth",
+                            "label": "信号带宽",
+                            "type": "double",
+                            "unit": "Hz",
+                            "default": "20000000",
+                            "min": 0,
+                            "max": 1000000000000
+                        },
+                        {
+                            "id": "modulation_style",
+                            "label": "调制样式",
+                            "type": "int",
+                            "unit": "",
+                            "default": "0",
+                            "min": 0,
+                            "max": 65535
+                        },
+                        {
+                            "id": "power",
+                            "label": "功率",
+                            "type": "double",
+                            "unit": "W",
+                            "default": "100",
+                            "min": 0,
+                            "max": 100000
+                        }
+                    ]
+                },
+                "device_instances": [
+                    {
+                        "device_id": "uhf_0",
+                        "device_name": "超短波设备 1",
+                        "basic_values": {
+                            "work_state_count": "1"
+                        },
+                        "work_states": [
+                            {
+                                "state_index": 0,
+                                "values": {
+                                    "comm_network_id": "4001",
+                                    "radio_number": "1",
+                                    "signal_type": "3",
+                                    "start_frequency": "300000000",
+                                    "end_frequency": "400000000",
+                                    "hop_period": "1000",
+                                    "hop_interval": "1000000",
+                                    "frequency_count": "10",
+                                    "frequencies": "300000000,310000000,320000000,330000000,340000000,350000000,360000000,370000000,380000000,390000000",
+                                    "spread_code_rate": "1000000",
+                                    "spread_code_length": "1023",
+                                    "signal_bandwidth": "20000000",
+                                    "modulation_style": "2",
+                                    "power": "50"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    } 
+}
