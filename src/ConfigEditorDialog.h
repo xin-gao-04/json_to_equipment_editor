@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QPoint>
+#include <QTextEdit>
 
 class ConfigEditorDialog : public QDialog {
     Q_OBJECT
@@ -31,6 +32,8 @@ private slots:
     void onTypeContextMenu(const QPoint& pos);
     void onBasicContextMenu(const QPoint& pos);
     void onWorkContextMenu(const QPoint& pos);
+    void onStateCountOverrideChanged(int value);
+    void onStateTitlesChanged();
 
 private:
     QJsonObject m_rootObj;
@@ -42,6 +45,8 @@ private:
     QSpinBox* m_deviceCountSpin;
     QListWidget* m_basicList;
     QListWidget* m_workList;
+    QSpinBox* m_stateCountOverride;
+    QTextEdit* m_stateTitlesEdit;
     QPushButton* m_saveButton;
 
     int currentTypeIndex() const;
@@ -52,4 +57,5 @@ private:
     void backupFile();
     void writeFile();
     static QString paramDisplay(const QJsonObject& obj);
+    void applyStateMetaChanges();
 };

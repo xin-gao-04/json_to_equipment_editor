@@ -11,6 +11,8 @@
 #include <QDialogButtonBox>
 #include <QFileInfo>
 #include <QMenu>
+#include <QTextEdit>
+#include <QFormLayout>
 
 ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString& filePath, QWidget* parent)
     : QDialog(parent), m_rootObj(rootObj), m_filePath(filePath)
@@ -90,9 +92,29 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
     workLayout->addWidget(editWorkBtn);
     workLayout->addWidget(removeWorkBtn);
 
+    // 工作状态标签/数量设置
+    m_stateCountOverride = new QSpinBox;
+    m_stateCountOverride->setRange(-1, 64);
+    m_stateCountOverride->setSpecialValueText(u8"不覆盖");
+    connect(m_stateCountOverride,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &ConfigEditorDialog::onStateCountOverrideChanged);
+
+    m_stateTitlesEdit = new QTextEdit;
+    m_stateTitlesEdit->setPlaceholderText(u8"状态标签，一行一个；为空则使用默认“工作状态1/2/...”");
+    connect(m_stateTitlesEdit, &QTextEdit::textChanged, this, &ConfigEditorDialog::onStateTitlesChanged);
+
+    QGroupBox* stateMetaGroup = new QGroupBox(u8"状态页签配置");
+    QFormLayout* stateMetaForm = new QFormLayout(stateMetaGroup);
+    stateMetaForm->addRow(u8"状态数量覆盖", m_stateCountOverride);
+    stateMetaForm->addRow(u8"状态标签列表", m_stateTitlesEdit);
+
     QHBoxLayout* rightLayout = new QHBoxLayout;
     rightLayout->addLayout(basicLayout, 1);
-    rightLayout->addLayout(workLayout, 1);
+    QVBoxLayout* workSide = new QVBoxLayout;
+    workSide->addLayout(workLayout);
+    workSide->addWidget(stateMetaGroup);
+    rightLayout->addLayout(workSide, 1);
 
     QVBoxLayout* rightPanel = new QVBoxLayout;
     rightPanel->addLayout(dcLayout);
@@ -198,6 +220,24 @@ void ConfigEditorDialog::updateParamLists(const QJsonObject& typeObj)
         item->setData(Qt::UserRole, i);
         m_workList->addItem(item);
     }
+
+    // 同步状态数量覆盖与标签
+    m_stateCountOverride->blockSignals(true);
+    if (wsObj.contains("state_tab_count")) {
+        m_stateCountOverride->setValue(wsObj.value("state_tab_count").toInt());
+    } else {
+        m_stateCountOverride->setValue(-1); // 不覆盖
+    }
+    m_stateCountOverride->blockSignals(false);
+
+    m_stateTitlesEdit->blockSignals(true);
+    QStringList titles;
+    QJsonArray titlesArr = wsObj.value("state_tab_titles").toArray();
+    for (const auto& v : titlesArr) {
+        titles << v.toString();
+    }
+    m_stateTitlesEdit->setPlainText(titles.join("\n"));
+    m_stateTitlesEdit->blockSignals(false);
 }
 
 void ConfigEditorDialog::onAddType()
@@ -436,6 +476,48 @@ void ConfigEditorDialog::onSave()
     writeFile();
     m_changed = false;
     accept();
+}
+
+void ConfigEditorDialog::applyStateMetaChanges()
+{
+    int idx = currentTypeIndex();
+    if (idx < 0) return;
+    QJsonObject typeObj = m_types[idx].toObject();
+    QJsonObject wsObj = typeObj.value("work_state_template").toObject();
+
+    // 数量覆盖
+    int count = m_stateCountOverride->value();
+    if (count >= 0) {
+        wsObj["state_tab_count"] = count;
+    } else {
+        wsObj.remove("state_tab_count");
+    }
+
+    // 标签列表
+    QStringList titles = m_stateTitlesEdit->toPlainText().split(QRegExp("[\\r\\n]+"), QString::SkipEmptyParts);
+    if (!titles.isEmpty()) {
+        QJsonArray arr;
+        for (const auto& t : titles) {
+            arr.append(t.trimmed());
+        }
+        wsObj["state_tab_titles"] = arr;
+    } else {
+        wsObj.remove("state_tab_titles");
+    }
+
+    typeObj["work_state_template"] = wsObj;
+    m_types[idx] = typeObj;
+    m_changed = true;
+}
+
+void ConfigEditorDialog::onStateCountOverrideChanged(int)
+{
+    applyStateMetaChanges();
+}
+
+void ConfigEditorDialog::onStateTitlesChanged()
+{
+    applyStateMetaChanges();
 }
 
 void ConfigEditorDialog::onTypeContextMenu(const QPoint& pos)
