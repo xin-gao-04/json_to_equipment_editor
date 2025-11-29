@@ -658,6 +658,33 @@
                 "work_state_template": {
                     "template_id": "uhf_work_state",
                     "template_name": "超短波工作状态",
+                    "visibility_rules": [
+                        {
+                            "controller": "signal_type",
+                            "cases": [
+                                {
+                                    "value": "1-定频",
+                                    "show": ["start_frequency", "end_frequency", "power"]
+                                },
+                                {
+                                    "value": "2-括频",
+                                    "show": ["start_frequency", "end_frequency", "power"]
+                                },
+                                {
+                                    "value": "3-跳频",
+                                    "show": ["hop_period", "hop_interval", "frequency_count", "frequencies", "power"]
+                                },
+                                {
+                                    "value": "4-link11",
+                                    "show": ["spread_code_rate", "spread_code_length", "signal_bandwidth", "modulation_style", "power"]
+                                },
+                                {
+                                    "value": "5-link4a",
+                                    "show": ["spread_code_rate", "spread_code_length", "signal_bandwidth", "modulation_style", "power"]
+                                }
+                            ]
+                        }
+                    ],
                     "parameters": [
                         {
                             "id": "comm_network_id",

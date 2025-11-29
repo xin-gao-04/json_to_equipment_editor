@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QVariantMap>
 #include <QMap>
+#include <QVector>
+#include <QSet>
 
 class WorkStateTemplate {
 public:
@@ -29,6 +31,17 @@ public:
     
     // 从JSON加载
     static WorkStateTemplate* fromJson(const QJsonObject& json);
+    
+    struct VisibilityCase {
+        QString value;
+        QStringList showIds;
+    };
+    struct VisibilityRule {
+        QString controllerId;
+        QList<VisibilityCase> cases;
+        QSet<QString> affectedIds;
+    };
+    const QVector<VisibilityRule>& getVisibilityRules() const { return m_visibilityRules; }
 
 private:
     QString m_templateId;
@@ -37,4 +50,5 @@ private:
     
     // 存储每个状态实例的参数值 stateIndex -> (parameterId -> value)
     mutable QMap<int, QVariantMap> m_stateValues;
-}; 
+    QVector<VisibilityRule> m_visibilityRules;
+};

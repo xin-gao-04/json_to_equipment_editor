@@ -108,5 +108,36 @@ WorkStateTemplate* WorkStateTemplate::fromJson(const QJsonObject& json)
         }
     }
     
+    // 可见性规则：controller -> cases(value -> showIds)
+    if (json.contains("visibility_rules")) {
+        QJsonArray rules = json["visibility_rules"].toArray();
+        for (const auto& ruleVal : rules) {
+            QJsonObject ruleObj = ruleVal.toObject();
+            VisibilityRule rule;
+            rule.controllerId = ruleObj["controller"].toString();
+            
+            if (ruleObj.contains("cases")) {
+                QJsonArray cases = ruleObj["cases"].toArray();
+                for (const auto& caseVal : cases) {
+                    QJsonObject caseObj = caseVal.toObject();
+                    VisibilityCase c;
+                    c.value = caseObj["value"].toString();
+                    if (caseObj.contains("show")) {
+                        QJsonArray showArray = caseObj["show"].toArray();
+                        for (const auto& sid : showArray) {
+                            c.showIds << sid.toString();
+                            rule.affectedIds.insert(sid.toString());
+                        }
+                    }
+                    rule.cases.append(c);
+                }
+            }
+            
+            if (!rule.controllerId.isEmpty() && !rule.cases.isEmpty()) {
+                tmpl->m_visibilityRules.append(rule);
+            }
+        }
+    }
+    
     return tmpl;
-} 
+}

@@ -8,6 +8,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 #include <QTimer>
+#include <QComboBox>
 #include <QDebug>
 #include <QFileDialog>
 #include <QJsonDocument>
@@ -107,6 +108,43 @@ void WorkStateTabWidget::createParameterWidgets()
     QTimer* updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &WorkStateTabWidget::updateStateValues);
     updateTimer->start(1000); // 每秒更新一次
+    
+    // 可见性规则联动
+    const auto& rules = tmpl->getVisibilityRules();
+    for (const auto& rule : rules) {
+        ParameterItem* controllerParam = m_parameterInstances.value(rule.controllerId, nullptr);
+        if (!controllerParam) {
+            continue;
+        }
+        QComboBox* controllerBox = qobject_cast<QComboBox*>(controllerParam->createEditor(paramGroup));
+        if (!controllerBox) {
+            continue;
+        }
+        
+        auto applyRule = [this, rule](const QString& currentValue) {
+            // 找到匹配的case
+            QStringList showIds;
+            for (const auto& c : rule.cases) {
+                if (c.value == currentValue) {
+                    showIds = c.showIds;
+                    break;
+                }
+            }
+            // 如果没有匹配，默认全部显示
+            bool hideOthers = !showIds.isEmpty();
+            for (const QString& pid : rule.affectedIds) {
+                if (!m_parameterInstances.contains(pid)) {
+                    continue;
+                }
+                bool visible = !hideOthers || showIds.contains(pid);
+                m_parameterInstances[pid]->setVisible(visible);
+            }
+        };
+        
+        connect(controllerBox, &QComboBox::currentTextChanged, this, applyRule);
+        // 初始化一次
+        applyRule(controllerParam->getValue().toString());
+    }
 }
 
 void WorkStateTabWidget::createSaveButton()
