@@ -124,14 +124,20 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
     mainLayout->addLayout(typeLayout, 1);
     mainLayout->addLayout(rightPanel, 2);
 
-    m_saveButton = new QPushButton(u8"保存结构并重载");
-    connect(m_saveButton, &QPushButton::clicked, this, &ConfigEditorDialog::onSave);
-    QDialogButtonBox* bottomButtons = new QDialogButtonBox(QDialogButtonBox::Close);
+    QDialogButtonBox* bottomButtons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Close);
+    m_saveButton = bottomButtons->button(QDialogButtonBox::Save);
+    if (m_saveButton) {
+        m_saveButton->setText(u8"保存结构并重载");
+        connect(m_saveButton, &QPushButton::clicked, this, &ConfigEditorDialog::onSave);
+    }
+    QPushButton* closeBtn = bottomButtons->button(QDialogButtonBox::Close);
+    if (closeBtn) {
+        closeBtn->setText(u8"关闭");
+    }
     connect(bottomButtons, &QDialogButtonBox::rejected, this, &ConfigEditorDialog::reject);
 
     QVBoxLayout* outer = new QVBoxLayout;
     outer->addLayout(mainLayout, 1);
-    outer->addWidget(m_saveButton);
     outer->addWidget(bottomButtons);
     setLayout(outer);
 
