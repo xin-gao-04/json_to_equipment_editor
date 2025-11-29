@@ -182,12 +182,23 @@ ParameterItem* ParameterItem::fromJson(const QJsonObject& json)
         item->setDefaultValue(defaultValue);
     }
     
+    // 兼容 range 或 min/max 的数值范围定义
+    double minVal = item->getMinValue();
+    double maxVal = item->getMaxValue();
     if (json.contains("range")) {
         QJsonArray range = json["range"].toArray();
         if (range.size() == 2) {
-            item->setRange(range[0].toDouble(), range[1].toDouble());
+            minVal = range[0].toDouble();
+            maxVal = range[1].toDouble();
         }
     }
+    if (json.contains("min")) {
+        minVal = json["min"].toDouble();
+    }
+    if (json.contains("max")) {
+        maxVal = json["max"].toDouble();
+    }
+    item->setRange(minVal, maxVal);
     
     if (json.contains("options")) {
         QJsonArray options = json["options"].toArray();

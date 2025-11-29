@@ -26,6 +26,7 @@ DeviceTabWidget::DeviceTabWidget(DeviceInstance* device, QWidget* parent)
     
     createBasicParametersTab();
     createWorkStateTabs();
+    m_lastStateCount = m_device->getWorkStateCount();
     
     // 启动定时器监听工作状态个数变化
     QTimer* updateTimer = new QTimer(this);
@@ -64,6 +65,7 @@ void DeviceTabWidget::createBasicParametersTab()
             ParameterItem* param = new ParameterItem(templateParam->getId(), 
                                                      templateParam->getLabel(), 
                                                      templateParam->getType());
+            param->setParent(this);
             param->setUnit(templateParam->getUnit());
             param->setDefaultValue(templateParam->getDefaultValue());
             
@@ -417,15 +419,16 @@ void DeviceTabWidget::onBasicParameterChanged()
         // 立即更新工作状态标签页
         updateWorkStateTabs();
     }
+    
+    m_lastStateCount = newStateCount;
 }
 
 void DeviceTabWidget::onWorkStateCountChanged()
 {
-    static int lastStateCount = -1;
     int currentStateCount = m_device ? m_device->getWorkStateCount() : 0;
     
-    if (lastStateCount != currentStateCount) {
-        lastStateCount = currentStateCount;
+    if (m_lastStateCount != currentStateCount) {
+        m_lastStateCount = currentStateCount;
         updateWorkStateTabs();
     }
 }

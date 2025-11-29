@@ -55,6 +55,7 @@ void WorkStateTabWidget::createParameterWidgets()
         ParameterItem* param = new ParameterItem(templateParam->getId(), 
                                                  templateParam->getLabel(), 
                                                  templateParam->getType());
+        param->setParent(this);
         param->setUnit(templateParam->getUnit());
         param->setDefaultValue(templateParam->getDefaultValue());
         

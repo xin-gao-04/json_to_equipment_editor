@@ -33,6 +33,7 @@ private:
     QPushButton* m_saveDeviceButton;
     QPushButton* m_saveBasicButton;
     QMap<QString, ParameterItem*> m_basicParameterInstances;
+    int m_lastStateCount = -1;
 
     void createBasicParametersTab();
     void createWorkStateTabs();
