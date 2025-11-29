@@ -93,6 +93,13 @@ private:
         // 创建主配置widget
         m_configWidget = new EquipmentConfigWidget(this);
         setCentralWidget(m_configWidget);
+        // 右键上下文菜单入口，嵌入时也能弹出结构编辑
+        m_configWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+        QAction* contextEditAction = new QAction(u8"结构编辑模式", m_configWidget);
+        connect(contextEditAction, &QAction::triggered, this, [this]() {
+            m_configWidget->openStructureEditor();
+        });
+        m_configWidget->addAction(contextEditAction);
         
         // 创建菜单
         QMenuBar* menuBar = this->menuBar();

@@ -1,4 +1,4 @@
-#include "TypeEditDialog.h"
+﻿#include "TypeEditDialog.h"
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
@@ -7,7 +7,7 @@
 TypeEditDialog::TypeEditDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle("Edit Equipment Type");
+    setWindowTitle(u8"编辑设备类型");
     setMinimumWidth(320);
 
     m_idEdit = new QLineEdit;
@@ -17,9 +17,9 @@ TypeEditDialog::TypeEditDialog(QWidget* parent)
     m_deviceCountSpin->setValue(1);
 
     QFormLayout* form = new QFormLayout;
-    form->addRow("Type ID", m_idEdit);
-    form->addRow("Type Name", m_nameEdit);
-    form->addRow("Device Count", m_deviceCountSpin);
+    form->addRow(u8"类型ID", m_idEdit);
+    form->addRow(u8"类型名称", m_nameEdit);
+    form->addRow(u8"设备数量", m_deviceCountSpin);
 
     QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttons, &QDialogButtonBox::accepted, this, &TypeEditDialog::onAccept);
@@ -49,7 +49,7 @@ QJsonObject TypeEditDialog::type() const
 void TypeEditDialog::onAccept()
 {
     if (m_idEdit->text().trimmed().isEmpty() || m_nameEdit->text().trimmed().isEmpty()) {
-        QMessageBox::warning(this, "Validation failed", "Type ID and Type Name cannot be empty");
+        QMessageBox::warning(this, u8"校验失败", u8"类型ID和类型名称不能为空");
         return;
     }
     accept();

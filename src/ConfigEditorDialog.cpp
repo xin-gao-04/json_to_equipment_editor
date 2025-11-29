@@ -1,4 +1,4 @@
-#include "ConfigEditorDialog.h"
+﻿#include "ConfigEditorDialog.h"
 #include "ParameterEditDialog.h"
 #include "TypeEditDialog.h"
 #include <QHBoxLayout>
@@ -10,11 +10,12 @@
 #include <QLabel>
 #include <QDialogButtonBox>
 #include <QFileInfo>
+#include <QMenu>
 
 ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString& filePath, QWidget* parent)
     : QDialog(parent), m_rootObj(rootObj), m_filePath(filePath)
 {
-    setWindowTitle("Edit Mode - Structure Editor");
+    setWindowTitle(u8"结构编辑模式");
     setMinimumSize(900, 600);
 
     // 拉取 equipment_types
@@ -24,16 +25,18 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
     m_typeList = new QListWidget;
     m_typeList->setSelectionMode(QAbstractItemView::SingleSelection);
     connect(m_typeList, &QListWidget::currentRowChanged, this, &ConfigEditorDialog::onTypeSelectionChanged);
+    m_typeList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_typeList, &QListWidget::customContextMenuRequested, this, &ConfigEditorDialog::onTypeContextMenu);
 
-    QPushButton* addTypeBtn = new QPushButton("Add Type");
-    QPushButton* editTypeBtn = new QPushButton("Edit Type");
-    QPushButton* removeTypeBtn = new QPushButton("Remove Type");
+    QPushButton* addTypeBtn = new QPushButton(u8"新增类型");
+    QPushButton* editTypeBtn = new QPushButton(u8"编辑类型");
+    QPushButton* removeTypeBtn = new QPushButton(u8"删除类型");
     connect(addTypeBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onAddType);
     connect(editTypeBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onEditType);
     connect(removeTypeBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onRemoveType);
 
     QVBoxLayout* typeLayout = new QVBoxLayout;
-    typeLayout->addWidget(new QLabel("Equipment Types"));
+    typeLayout->addWidget(new QLabel(u8"设备类型"));
     typeLayout->addWidget(m_typeList, 1);
     typeLayout->addWidget(addTypeBtn);
     typeLayout->addWidget(editTypeBtn);
@@ -47,21 +50,23 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
             this, &ConfigEditorDialog::onDeviceCountChanged);
 
     QHBoxLayout* dcLayout = new QHBoxLayout;
-    dcLayout->addWidget(new QLabel("Device Count"));
+    dcLayout->addWidget(new QLabel(u8"设备数量"));
     dcLayout->addWidget(m_deviceCountSpin);
     dcLayout->addStretch();
 
     m_basicList = new QListWidget;
     m_basicList->setSelectionMode(QAbstractItemView::SingleSelection);
-    QPushButton* addBasicBtn = new QPushButton("Add Basic Param");
-    QPushButton* editBasicBtn = new QPushButton("Edit Basic Param");
-    QPushButton* removeBasicBtn = new QPushButton("Remove Basic Param");
+    m_basicList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_basicList, &QListWidget::customContextMenuRequested, this, &ConfigEditorDialog::onBasicContextMenu);
+    QPushButton* addBasicBtn = new QPushButton(u8"新增基本参数");
+    QPushButton* editBasicBtn = new QPushButton(u8"编辑基本参数");
+    QPushButton* removeBasicBtn = new QPushButton(u8"删除基本参数");
     connect(addBasicBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onAddBasic);
     connect(editBasicBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onEditBasic);
     connect(removeBasicBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onRemoveBasic);
 
     QVBoxLayout* basicLayout = new QVBoxLayout;
-    basicLayout->addWidget(new QLabel("Basic Parameter Template"));
+    basicLayout->addWidget(new QLabel(u8"基本参数模板"));
     basicLayout->addWidget(m_basicList, 1);
     basicLayout->addWidget(addBasicBtn);
     basicLayout->addWidget(editBasicBtn);
@@ -69,15 +74,17 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
 
     m_workList = new QListWidget;
     m_workList->setSelectionMode(QAbstractItemView::SingleSelection);
-    QPushButton* addWorkBtn = new QPushButton("Add State Param");
-    QPushButton* editWorkBtn = new QPushButton("Edit State Param");
-    QPushButton* removeWorkBtn = new QPushButton("Remove State Param");
+    m_workList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_workList, &QListWidget::customContextMenuRequested, this, &ConfigEditorDialog::onWorkContextMenu);
+    QPushButton* addWorkBtn = new QPushButton(u8"新增状态参数");
+    QPushButton* editWorkBtn = new QPushButton(u8"编辑状态参数");
+    QPushButton* removeWorkBtn = new QPushButton(u8"删除状态参数");
     connect(addWorkBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onAddWorkParam);
     connect(editWorkBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onEditWorkParam);
     connect(removeWorkBtn, &QPushButton::clicked, this, &ConfigEditorDialog::onRemoveWorkParam);
 
     QVBoxLayout* workLayout = new QVBoxLayout;
-    workLayout->addWidget(new QLabel("Work State Template Parameters"));
+    workLayout->addWidget(new QLabel(u8"工作状态模板参数"));
     workLayout->addWidget(m_workList, 1);
     workLayout->addWidget(addWorkBtn);
     workLayout->addWidget(editWorkBtn);
@@ -95,7 +102,7 @@ ConfigEditorDialog::ConfigEditorDialog(const QJsonObject& rootObj, const QString
     mainLayout->addLayout(typeLayout, 1);
     mainLayout->addLayout(rightPanel, 2);
 
-    m_saveButton = new QPushButton("Save & Reload");
+    m_saveButton = new QPushButton(u8"保存结构并重载");
     connect(m_saveButton, &QPushButton::clicked, this, &ConfigEditorDialog::onSave);
     QDialogButtonBox* bottomButtons = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(bottomButtons, &QDialogButtonBox::rejected, this, &ConfigEditorDialog::reject);
@@ -222,7 +229,7 @@ void ConfigEditorDialog::onRemoveType()
 {
     int idx = currentTypeIndex();
     if (idx < 0) return;
-    if (QMessageBox::question(this, "Remove Type", "Delete this equipment type and its definitions?") != QMessageBox::Yes) {
+    if (QMessageBox::question(this, u8"删除类型", u8"确定删除该设备类型及其定义？") != QMessageBox::Yes) {
         return;
     }
     m_types.removeAt(idx);
@@ -252,7 +259,7 @@ void ConfigEditorDialog::onAddBasic()
         QString newId = paramObj["id"].toString();
         for (const auto& v : basics) {
             if (v.toObject().value("id").toString() == newId) {
-                QMessageBox::warning(this, "Duplicate ID", "This ID already exists in basic parameters");
+                QMessageBox::warning(this, u8"重复ID", u8"该ID已存在于基本参数中");
                 return;
             }
         }
@@ -281,7 +288,7 @@ void ConfigEditorDialog::onEditBasic()
         for (int i = 0; i < basics.size(); ++i) {
             if (i == row) continue;
             if (basics[i].toObject().value("id").toString() == newId) {
-                QMessageBox::warning(this, "Duplicate ID", "This ID already exists in basic parameters");
+                QMessageBox::warning(this, u8"重复ID", u8"该ID已存在于基本参数中");
                 return;
             }
         }
@@ -299,7 +306,7 @@ void ConfigEditorDialog::onRemoveBasic()
     if (idx < 0) return;
     int row = m_basicList->currentRow();
     if (row < 0) return;
-    if (QMessageBox::question(this, "Remove Parameter", "Delete this basic parameter?") != QMessageBox::Yes) {
+    if (QMessageBox::question(this, u8"删除参数", u8"确定删除该基本参数？") != QMessageBox::Yes) {
         return;
     }
     QJsonObject typeObj = m_types[idx].toObject();
@@ -326,7 +333,7 @@ void ConfigEditorDialog::onAddWorkParam()
         QString newId = paramObj["id"].toString();
         for (const auto& v : params) {
             if (v.toObject().value("id").toString() == newId) {
-                QMessageBox::warning(this, "Duplicate ID", "This ID already exists in work state parameters");
+                QMessageBox::warning(this, u8"重复ID", u8"该ID已存在于工作状态参数中");
                 return;
             }
         }
@@ -357,7 +364,7 @@ void ConfigEditorDialog::onEditWorkParam()
         for (int i = 0; i < params.size(); ++i) {
             if (i == row) continue;
             if (params[i].toObject().value("id").toString() == newId) {
-                QMessageBox::warning(this, "Duplicate ID", "This ID already exists in work state parameters");
+                QMessageBox::warning(this, u8"重复ID", u8"该ID已存在于工作状态参数中");
                 return;
             }
         }
@@ -376,7 +383,7 @@ void ConfigEditorDialog::onRemoveWorkParam()
     if (idx < 0) return;
     int row = m_workList->currentRow();
     if (row < 0) return;
-    if (QMessageBox::question(this, "Remove Parameter", "Delete this work-state parameter?") != QMessageBox::Yes) {
+    if (QMessageBox::question(this, u8"删除参数", u8"确定删除该状态参数？") != QMessageBox::Yes) {
         return;
     }
     QJsonObject typeObj = m_types[idx].toObject();
@@ -410,7 +417,7 @@ void ConfigEditorDialog::writeFile()
     if (!m_filePath.isEmpty()) {
         QFile f(m_filePath);
         if (!f.open(QIODevice::WriteOnly)) {
-            QMessageBox::warning(this, "Save failed", "Cannot open file for writing");
+            QMessageBox::warning(this, u8"保存失败", u8"无法写入文件");
             return;
         }
         QJsonDocument doc(m_rootObj);
@@ -429,4 +436,43 @@ void ConfigEditorDialog::onSave()
     writeFile();
     m_changed = false;
     accept();
+}
+
+void ConfigEditorDialog::onTypeContextMenu(const QPoint& pos)
+{
+    QMenu menu(this);
+    QAction* addAct = menu.addAction(u8"新增类型");
+    QAction* editAct = menu.addAction(u8"编辑类型");
+    QAction* delAct = menu.addAction(u8"删除类型");
+    QAction* chosen = menu.exec(m_typeList->viewport()->mapToGlobal(pos));
+    if (!chosen) return;
+    if (chosen == addAct) onAddType();
+    else if (chosen == editAct) onEditType();
+    else if (chosen == delAct) onRemoveType();
+}
+
+void ConfigEditorDialog::onBasicContextMenu(const QPoint& pos)
+{
+    QMenu menu(this);
+    QAction* addAct = menu.addAction(u8"新增基本参数");
+    QAction* editAct = menu.addAction(u8"编辑基本参数");
+    QAction* delAct = menu.addAction(u8"删除基本参数");
+    QAction* chosen = menu.exec(m_basicList->viewport()->mapToGlobal(pos));
+    if (!chosen) return;
+    if (chosen == addAct) onAddBasic();
+    else if (chosen == editAct) onEditBasic();
+    else if (chosen == delAct) onRemoveBasic();
+}
+
+void ConfigEditorDialog::onWorkContextMenu(const QPoint& pos)
+{
+    QMenu menu(this);
+    QAction* addAct = menu.addAction(u8"新增状态参数");
+    QAction* editAct = menu.addAction(u8"编辑状态参数");
+    QAction* delAct = menu.addAction(u8"删除状态参数");
+    QAction* chosen = menu.exec(m_workList->viewport()->mapToGlobal(pos));
+    if (!chosen) return;
+    if (chosen == addAct) onAddWorkParam();
+    else if (chosen == editAct) onEditWorkParam();
+    else if (chosen == delAct) onRemoveWorkParam();
 }

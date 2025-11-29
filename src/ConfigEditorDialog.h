@@ -6,6 +6,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QPoint>
 
 class ConfigEditorDialog : public QDialog {
     Q_OBJECT
@@ -27,6 +28,9 @@ private slots:
     void onEditWorkParam();
     void onRemoveWorkParam();
     void onSave();
+    void onTypeContextMenu(const QPoint& pos);
+    void onBasicContextMenu(const QPoint& pos);
+    void onWorkContextMenu(const QPoint& pos);
 
 private:
     QJsonObject m_rootObj;

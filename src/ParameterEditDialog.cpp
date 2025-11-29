@@ -1,4 +1,4 @@
-#include "ParameterEditDialog.h"
+﻿#include "ParameterEditDialog.h"
 #include <QFormLayout>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
@@ -11,7 +11,7 @@
 ParameterEditDialog::ParameterEditDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle("Edit Parameter");
+    setWindowTitle(u8"编辑参数");
     setMinimumWidth(400);
 
     m_idEdit = new QLineEdit;
@@ -31,14 +31,14 @@ ParameterEditDialog::ParameterEditDialog(QWidget* parent)
             this, &ParameterEditDialog::onTypeChanged);
 
     QFormLayout* form = new QFormLayout;
-    form->addRow("ID", m_idEdit);
-    form->addRow("Label", m_labelEdit);
-    form->addRow("Type", m_typeCombo);
-    form->addRow("Default", m_defaultEdit);
-    form->addRow("Min", m_minEdit);
-    form->addRow("Max", m_maxEdit);
-    form->addRow("Enum options (one per line)", m_optionsEdit);
-    form->addRow("Unit", m_unitEdit);
+    form->addRow(u8"ID", m_idEdit);
+    form->addRow(u8"名称", m_labelEdit);
+    form->addRow(u8"类型", m_typeCombo);
+    form->addRow(u8"默认值", m_defaultEdit);
+    form->addRow(u8"最小值", m_minEdit);
+    form->addRow(u8"最大值", m_maxEdit);
+    form->addRow(u8"枚举选项(每行一个)", m_optionsEdit);
+    form->addRow(u8"单位", m_unitEdit);
 
     m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(m_buttons, &QDialogButtonBox::accepted, this, &ParameterEditDialog::onAccept);
@@ -121,11 +121,11 @@ void ParameterEditDialog::toggleFields(const QString& type)
 bool ParameterEditDialog::validate(QString& error) const
 {
     if (m_idEdit->text().trimmed().isEmpty()) {
-        error = u8"ID cannot be empty";
+        error = u8"ID 不能为空";
         return false;
     }
     if (m_labelEdit->text().trimmed().isEmpty()) {
-        error = u8"Label cannot be empty";
+        error = u8"名称不能为空";
         return false;
     }
     QString type = m_typeCombo->currentText();
@@ -134,14 +134,14 @@ bool ParameterEditDialog::validate(QString& error) const
         m_minEdit->text().toDouble(&ok1);
         m_maxEdit->text().toDouble(&ok2);
         if (!ok1 || !ok2) {
-            error = u8"Range must be numeric";
+            error = u8"范围必须是数字";
             return false;
         }
     }
     if (type == "enum") {
         QStringList opts = m_optionsEdit->toPlainText().split(QRegExp("[\\r\\n]+"), QString::SkipEmptyParts);
         if (opts.isEmpty()) {
-            error = u8"Enum options cannot be empty";
+            error = u8"枚举选项不能为空";
             return false;
         }
     }
