@@ -4,8 +4,13 @@ project(EquipmentConfig)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Set Qt path
-set(CMAKE_PREFIX_PATH "C:/Qt/Qt5.5.1/lib/cmake/Qt5")
+# Set Qt path (Windows uses a default prefix; other platforms rely on system Qt)
+if (WIN32)
+    set(QT_WINDOWS_PREFIX "C:/Qt/Qt5.5.1/lib/cmake/Qt5")
+    if (NOT DEFINED CMAKE_PREFIX_PATH)
+        set(CMAKE_PREFIX_PATH "${QT_WINDOWS_PREFIX}")
+    endif()
+endif()
 
 # Find Qt5
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
