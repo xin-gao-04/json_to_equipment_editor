@@ -34,6 +34,8 @@ private slots:
     void onWorkContextMenu(const QPoint& pos);
     void onStateCountOverrideChanged(int value);
     void onStateTitlesChanged();
+    void onApplyRules();
+    void onOpenRuleEditor();
 
 private:
     QJsonObject m_rootObj;
@@ -47,6 +49,7 @@ private:
     QListWidget* m_workList;
     QSpinBox* m_stateCountOverride;
     QTextEdit* m_stateTitlesEdit;
+    QTextEdit* m_rulesEdit;
     QPushButton* m_saveButton;
 
     int currentTypeIndex() const;
@@ -58,4 +61,5 @@ private:
     void writeFile();
     static QString paramDisplay(const QJsonObject& obj);
     void applyStateMetaChanges();
-};
+    void updateRulesEditor(const QJsonObject& typeObj);
+}; 

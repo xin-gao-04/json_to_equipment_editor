@@ -33,6 +33,7 @@ set(SOURCES
     src/ConfigEditorDialog.cpp
     src/ParameterEditDialog.cpp
     src/TypeEditDialog.cpp
+    src/RuleEditorDialog.cpp
 )
 
 set(HEADERS
@@ -46,6 +47,7 @@ set(HEADERS
     src/ConfigEditorDialog.h
     src/ParameterEditDialog.h
     src/TypeEditDialog.h
+    src/RuleEditorDialog.h
 )
 
 # Create executable

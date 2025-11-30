@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QScopedValueRollback>
+#include <QTabBar>
 #include "ConfigEditorDialog.h"
 
 EquipmentConfigWidget::EquipmentConfigWidget(QWidget* parent)
@@ -19,6 +20,11 @@ EquipmentConfigWidget::EquipmentConfigWidget(QWidget* parent)
     setTabPosition(QTabWidget::North);
     setMovable(true);
     setTabsClosable(false);
+    setUsesScrollButtons(true);
+    if (tabBar()) {
+        tabBar()->setExpanding(false);
+        tabBar()->setElideMode(Qt::ElideNone);
+    }
     
     // 启动定时器定期更新所有设备的可见性
     QTimer* visibilityTimer = new QTimer(this);
@@ -467,6 +473,11 @@ void EquipmentConfigWidget::createEquipmentTypeTabs()
                 // 多个设备实例时，保持原有的三层结构
                 QTabWidget* typeTabWidget = new QTabWidget(this);
                 typeTabWidget->setTabPosition(QTabWidget::North);
+                typeTabWidget->setUsesScrollButtons(true);
+                if (typeTabWidget->tabBar()) {
+                    typeTabWidget->tabBar()->setExpanding(false);
+                    typeTabWidget->tabBar()->setElideMode(Qt::ElideNone);
+                }
                 
                 createDeviceTabs(equipType->getTypeId(), typeTabWidget);
                 
@@ -528,6 +539,30 @@ void EquipmentConfigWidget::updateAllVisibility()
 bool EquipmentConfigWidget::validateAll()
 {
     QStringList errors;
+    auto parseFrequencies = [](const QString& text, QList<double>& out) -> bool {
+        QString trimmed = text.trimmed();
+        if (trimmed.isEmpty()) {
+            return true;
+        }
+        if (!trimmed.startsWith('[') || !trimmed.endsWith(']')) {
+            return false;
+        }
+        trimmed = trimmed.mid(1, trimmed.size() - 2).trimmed();
+        if (trimmed.isEmpty()) {
+            return true;
+        }
+        const QStringList parts = trimmed.split(',', Qt::SkipEmptyParts);
+        for (const QString& p : parts) {
+            bool ok = false;
+            double v = p.trimmed().toDouble(&ok);
+            if (!ok) {
+                return false;
+            }
+            out.append(v);
+        }
+        return true;
+    };
+
     auto normalizeValue = [](ParameterItem* param, const QVariant& value) {
         QVariant normalized = value;
         const QString type = param->getType();
@@ -587,7 +622,6 @@ bool EquipmentConfigWidget::validateAll()
     for (EquipmentType* equipType : m_equipmentTypes) {
         const auto& basicParams = equipType->getBasicParameters();
         WorkStateTemplate* wsTemplate = equipType->getWorkStateTemplate();
-        
         const QList<DeviceInstance*>& devices = m_deviceInstances.value(equipType->getTypeId());
         for (DeviceInstance* device : devices) {
             // 基本参数校验
@@ -614,6 +648,170 @@ bool EquipmentConfigWidget::validateAll()
                         }
                     }
                     device->setWorkStateValues(stateIdx, stateValues);
+                }
+            }
+
+            // 通用规则引擎：按 validation_rules 执行业务校验（当前用于 UHF）
+            if (wsTemplate) {
+                QJsonObject wsObj = equipType->getWorkStateTemplate()->getTemplateId().isEmpty()
+                    ? QJsonObject()
+                    : QJsonObject(); //占位
+                // 从原始配置对象中获取 validation_rules（存放在 work_state_template 节点）
+                // 由于这里没有直接保存模板的 JSON，改用 equipType->getWorkStateTemplate() 获取不到规则，故直接从 m_lastRootObject 中查找
+            }
+        }
+    }
+
+    // 从 m_lastRootObject 中提取 validation_rules 并执行
+    if (!m_lastRootObject.isEmpty()) {
+        QJsonArray types = m_lastRootObject.value("equipment_config").toObject().value("equipment_types").toArray();
+        QMap<QString, QJsonObject> rulesByType;
+        for (const auto& tv : types) {
+            QJsonObject to = tv.toObject();
+            QString tid = to.value("type_id").toString();
+            QJsonObject ws = to.value("work_state_template").toObject();
+            if (ws.contains("validation_rules")) {
+                rulesByType.insert(tid, ws);
+            }
+        }
+
+        auto getParamVal = [](const QVariantMap& vals, const QString& key) -> QString {
+            QVariant v = vals.value(key);
+            if (!v.isValid()) return QString();
+            return v.toString();
+        };
+
+        auto matchWhen = [&](const QVariantMap& vals, const QJsonObject& when) -> bool {
+            for (auto it = when.begin(); it != when.end(); ++it) {
+                QString key = it.key();
+                QJsonArray arr = it.value().toArray();
+                QString cur = getParamVal(vals, key);
+                bool hit = false;
+                for (const auto& v : arr) {
+                    if (cur == v.toString()) {
+                        hit = true;
+                        break;
+                    }
+                }
+                if (!hit) return false;
+            }
+            return true;
+        };
+
+        auto getNumber = [](const QVariantMap& vals, const QString& key) -> double {
+            bool ok = false;
+            double d = vals.value(key).toDouble(&ok);
+            return ok ? d : 0.0;
+        };
+
+        auto applyValidationRules = [&](const QString& typeId,
+                                        DeviceInstance* device,
+                                        int stateIdx,
+                                        const QVariantMap& vals,
+                                        const QJsonArray& rules) {
+            for (const auto& rv : rules) {
+                QJsonObject ro = rv.toObject();
+                QString scope = ro.value("scope").toString();
+                if (scope != "per_state") continue;
+                QString rid = ro.value("id").toString();
+                QString desc = ro.value("description").toString();
+                QJsonArray constraints = ro.value("constraints").toArray();
+                for (const auto& cv : constraints) {
+                    QJsonObject co = cv.toObject();
+                    if (co.contains("when")) {
+                        if (!matchWhen(vals, co.value("when").toObject())) {
+                            continue;
+                        }
+                    }
+                    const QString prefix = QString(u8"设备[%1] 工作状态%2 规则[%3]")
+                                               .arg(device->getDeviceName())
+                                               .arg(stateIdx + 1)
+                                               .arg(rid.isEmpty() ? QStringLiteral("未知") : rid);
+                    const double eps = 1e-6;
+                    if (co.contains("equal")) {
+                        QJsonArray arr = co.value("equal").toArray();
+                        if (arr.size() == 2) {
+                            double a = getNumber(vals, arr.at(0).toString());
+                            double b = getNumber(vals, arr.at(1).toString());
+                            if (qAbs(a - b) > eps) {
+                                errors << QString(u8"%1：%2 与 %3 应相等").arg(prefix, arr.at(0).toString(), arr.at(1).toString());
+                            }
+                        }
+                    }
+                    if (co.contains("less")) {
+                        QJsonArray arr = co.value("less").toArray();
+                        if (arr.size() == 2) {
+                            double a = getNumber(vals, arr.at(0).toString());
+                            double b = getNumber(vals, arr.at(1).toString());
+                            if (!(a < b)) {
+                                errors << QString(u8"%1：%2 应小于 %3").arg(prefix, arr.at(0).toString(), arr.at(1).toString());
+                            }
+                        }
+                    }
+                    if (co.contains("min")) {
+                        QJsonObject mo = co.value("min").toObject();
+                        for (auto it = mo.begin(); it != mo.end(); ++it) {
+                            double v = getNumber(vals, it.key());
+                            if (v + eps < it.value().toDouble()) {
+                                errors << QString(u8"%1：%2 应≥%3").arg(prefix, it.key()).arg(it.value().toDouble());
+                            }
+                        }
+                    }
+                    if (co.contains("min_end_by_interval")) {
+                        QJsonObject mo = co.value("min_end_by_interval").toObject();
+                        QString startK = mo.value("start").toString();
+                        QString endK = mo.value("end").toString();
+                        QString countK = mo.value("count").toString();
+                        QString intK = mo.value("interval").toString();
+                        double start = getNumber(vals, startK);
+                        double end = getNumber(vals, endK);
+                        int count = vals.value(countK).toInt();
+                        double interval = getNumber(vals, intK);
+                        double minEnd = start + static_cast<double>(count) * interval;
+                        if (end + eps < minEnd) {
+                            errors << QString(u8"%1：%2 应≥%3（当前 %4，期望≥%5）")
+                                      .arg(prefix, endK)
+                                      .arg(minEnd, 0, 'g', 12)
+                                      .arg(end, 0, 'g', 12)
+                                      .arg(minEnd, 0, 'g', 12);
+                        }
+                    }
+                    if (co.contains("list_between")) {
+                        QJsonObject lo = co.value("list_between").toObject();
+                        QString listK = lo.value("list").toString();
+                        QString minK = lo.value("min_from").toString();
+                        QString maxK = lo.value("max_from").toString();
+                        QList<double> listVals;
+                        if (!parseFrequencies(vals.value(listK).toString(), listVals)) {
+                            errors << QString(u8"%1：%2 频率数组格式错误，应为形如[1,2,3]").arg(prefix, listK);
+                        } else {
+                            double minV = getNumber(vals, minK);
+                            double maxV = getNumber(vals, maxK);
+                            for (double f : listVals) {
+                                if (!(f > minV && f < maxV)) {
+                                    errors << QString(u8"%1：%2 中的频率%3 应在 (%4, %5) 内")
+                                              .arg(prefix, listK)
+                                              .arg(f, 0, 'g', 12)
+                                              .arg(minV, 0, 'g', 12)
+                                              .arg(maxV, 0, 'g', 12);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        for (EquipmentType* equipType : m_equipmentTypes) {
+            const auto& devices = m_deviceInstances.value(equipType->getTypeId());
+            QJsonObject wsObj = rulesByType.value(equipType->getTypeId());
+            QJsonArray vRules = wsObj.value("validation_rules").toArray();
+            if (vRules.isEmpty()) continue;
+            for (DeviceInstance* device : devices) {
+                for (int stateIdx = 0; stateIdx < device->getWorkStateCount(); ++stateIdx) {
+                    QVariantMap stateValues = device->getWorkStateValues(stateIdx);
+                    applyValidationRules(equipType->getTypeId(), device, stateIdx, stateValues, vRules);
                 }
             }
         }

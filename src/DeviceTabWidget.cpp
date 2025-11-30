@@ -16,12 +16,18 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QMessageBox>
+#include <QTabBar>
 
 DeviceTabWidget::DeviceTabWidget(DeviceInstance* device, QWidget* parent)
     : QTabWidget(parent), m_device(device), m_saveDeviceButton(nullptr), m_saveBasicButton(nullptr)
 {
     if (!m_device) {
         return;
+    }
+    setUsesScrollButtons(true);
+    if (tabBar()) {
+        tabBar()->setExpanding(false);
+        tabBar()->setElideMode(Qt::ElideNone);
     }
     
     createBasicParametersTab();
@@ -88,10 +94,29 @@ void DeviceTabWidget::createBasicParametersTab()
                 labelText += QString(" (%1)").arg(param->getUnit());
             }
             
-            formLayout->addRow(labelText, editor);
+            QLabel* labelWidget = new QLabel(labelText, basicGroup);
+            QWidget* rowContainer = new QWidget(basicGroup);
+            QHBoxLayout* rowLayout = new QHBoxLayout(rowContainer);
+            rowLayout->setContentsMargins(0, 0, 0, 0);
+            rowLayout->setSpacing(8);
+            rowLayout->addWidget(labelWidget);
+            rowLayout->addWidget(editor, 1);
+            formLayout->addRow(rowContainer);
             
-            // 存储参数实例以便后续更新
+            // 存储参数实例及其行组件以便后续更新
             m_basicParameterInstances[param->getId()] = param;
+            m_basicLabelWidgets[param->getId()] = labelWidget;
+            m_basicRowWidgets[param->getId()] = rowContainer;
+        }
+        
+        // 统一标签宽度，确保左对齐效果一致
+        int maxLabelWidth = 0;
+        for (auto it = m_basicLabelWidgets.begin(); it != m_basicLabelWidgets.end(); ++it) {
+            maxLabelWidth = qMax(maxLabelWidth, it.value()->sizeHint().width());
+        }
+        for (auto it = m_basicLabelWidgets.begin(); it != m_basicLabelWidgets.end(); ++it) {
+            it.value()->setMinimumWidth(maxLabelWidth);
+            it.value()->setMaximumWidth(maxLabelWidth);
         }
     }
     
@@ -505,6 +530,12 @@ void DeviceTabWidget::updateVisibility()
             ParameterItem* param = it.value();
             if (param->getId() == "work_state_count" || param->getId().contains("工作状态")) {
                 param->setVisible(false);
+                if (m_basicLabelWidgets.contains(param->getId())) {
+                    m_basicLabelWidgets[param->getId()]->setVisible(false);
+                }
+                if (m_basicRowWidgets.contains(param->getId())) {
+                    m_basicRowWidgets[param->getId()]->setVisible(false);
+                }
             }
         }
         
@@ -567,6 +598,12 @@ void DeviceTabWidget::updateVisibility()
         for (auto it = m_basicParameterInstances.begin(); it != m_basicParameterInstances.end(); ++it) {
             ParameterItem* param = it.value();
             param->setVisible(true);
+            if (m_basicLabelWidgets.contains(param->getId())) {
+                m_basicLabelWidgets[param->getId()]->setVisible(true);
+            }
+            if (m_basicRowWidgets.contains(param->getId())) {
+                m_basicRowWidgets[param->getId()]->setVisible(true);
+            }
         }
         
         // 显示保存设备按钮

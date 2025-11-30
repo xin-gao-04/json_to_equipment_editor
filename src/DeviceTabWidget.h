@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QMap>
+#include <QLabel>
 
 class EquipmentConfigWidget;
 class ParameterItem;
@@ -33,6 +34,8 @@ private:
     QPushButton* m_saveDeviceButton;
     QPushButton* m_saveBasicButton;
     QMap<QString, ParameterItem*> m_basicParameterInstances;
+    QMap<QString, QLabel*> m_basicLabelWidgets;
+    QMap<QString, QWidget*> m_basicRowWidgets;
     int m_lastStateCount = -1;
 
     void createBasicParametersTab();
