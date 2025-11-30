@@ -34,10 +34,6 @@ DeviceTabWidget::DeviceTabWidget(DeviceInstance* device, QWidget* parent)
     updateTimer->start(2000); // 每2秒检查一次
     
     // 启动定时器监听设备启用状态变化
-    QTimer* visibilityTimer = new QTimer(this);
-    connect(visibilityTimer, &QTimer::timeout, this, &DeviceTabWidget::updateVisibility);
-    visibilityTimer->start(1000); // 每秒检查一次
-    
     // 初始更新可见性
     updateVisibility();
 }
@@ -146,6 +142,7 @@ void DeviceTabWidget::createWorkStateTabs()
                             ? tmpl->getStateTabTitles().at(i)
                             : QString(u8"工作状态 %1").arg(i + 1);
         WorkStateTabWidget* stateWidget = new WorkStateTabWidget(m_device, i, tabName, this);
+        stateWidget->setObjectName(QStringLiteral("work_state_%1").arg(i));
         addTab(stateWidget, tabName);
     }
     
@@ -488,7 +485,7 @@ void DeviceTabWidget::updateVisibility()
     
     for (int i = 1; i < count(); ++i) { // 跳过基本参数tab(0)
         QWidget* tabWidget = widget(i);
-        if (tabWidget && tabText(i).contains(u8"工作状态")) {
+        if (tabWidget && qobject_cast<WorkStateTabWidget*>(tabWidget)) {
             workStateTabs.append(tabWidget);
             workStateIndices.append(i);
         }

@@ -26,6 +26,7 @@ public:
     double getMinValue() const { return m_minValue; }
     double getMaxValue() const { return m_maxValue; }
     QStringList getOptions() const { return m_options; }
+    bool isArrayLike() const;
     
     // 设置属性
     void setUnit(const QString& unit) { m_unit = unit; }

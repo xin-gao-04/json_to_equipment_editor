@@ -41,6 +41,7 @@ private:
     QMap<QString, QList<DeviceInstance*>> m_deviceInstances; // typeId -> devices
     QString m_currentFilePath; // 当前打开的文件路径
     QJsonObject m_lastRootObject; // 缓存当前配置的原始 JSON
+    bool m_isLoading = false; // 标记是否处于加载阶段，避免重复刷新
 
     void createEquipmentTypeTabs();
     void createDeviceTabs(const QString& typeId, QTabWidget* parentTab);

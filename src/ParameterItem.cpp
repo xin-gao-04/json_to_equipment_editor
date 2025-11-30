@@ -220,6 +220,18 @@ ParameterItem* ParameterItem::fromJson(const QJsonObject& json)
 
 QRegularExpression ParameterItem::stringAllowedPattern()
 {
-    // 仅允许数字、空白、逗号、方括号、点和负号，便于输入数组或数值列表
-    return QRegularExpression(QStringLiteral("^[0-9\\s,\\[\\]\\.-]*$"));
+    // 允许单行可打印字符，便于输入名称、路径或数组字面量，避免过度限制
+    return QRegularExpression(QStringLiteral("^[^\\n\\r]*$"));
+}
+
+bool ParameterItem::isArrayLike() const
+{
+    if (m_type != "string") {
+        return false;
+    }
+    return m_id.contains("array", Qt::CaseInsensitive) ||
+           m_id.contains("list", Qt::CaseInsensitive)  ||
+           m_label.contains(u8"数组")                  ||
+           m_label.contains(u8"列表")                  ||
+           m_label.contains("[]");
 }

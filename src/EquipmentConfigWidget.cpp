@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QFileInfo>
 #include <QDir>
+#include <QScopedValueRollback>
 #include "ConfigEditorDialog.h"
 
 EquipmentConfigWidget::EquipmentConfigWidget(QWidget* parent)
@@ -74,6 +75,14 @@ bool EquipmentConfigWidget::loadFromJson(const QString& jsonFile)
         emit validationError(QString(u8"配置文件格式错误：缺少equipment_config节点"));
         return false;
     }
+
+    // 加载阶段屏蔽界面刷新与可见性检查，减少构建时的卡顿
+    QScopedValueRollback<bool> loadingGuard(m_isLoading, true);
+    struct CursorGuard {
+        CursorGuard() { QApplication::setOverrideCursor(Qt::WaitCursor); }
+        ~CursorGuard() { QApplication::restoreOverrideCursor(); }
+    } cursorGuard;
+    setUpdatesEnabled(false);
     
     // 清理现有数据
     clearAll();
@@ -137,6 +146,8 @@ bool EquipmentConfigWidget::loadFromJson(const QString& jsonFile)
     
     // 创建界面
     createEquipmentTypeTabs();
+    setUpdatesEnabled(true);
+    updateAllVisibility(); // 构建完成后统一刷新可见性
     
     // 设置当前文件路径
     m_currentFilePath = jsonFile;
@@ -363,6 +374,18 @@ bool EquipmentConfigWidget::saveToJson(const QString& jsonFile)
                 wsParamsArray.append(paramObj);
             }
             templateObj["parameters"] = wsParamsArray;
+            
+            // 保存自定义工作状态标签及可选的数量覆盖
+            if (!wsTemplate->getStateTabTitles().isEmpty()) {
+                QJsonArray titlesArr;
+                for (const QString& t : wsTemplate->getStateTabTitles()) {
+                    titlesArr.append(t);
+                }
+                templateObj["state_tab_titles"] = titlesArr;
+            }
+            if (wsTemplate->getStateTabCountOverride() > 0) {
+                templateObj["state_tab_count"] = wsTemplate->getStateTabCountOverride();
+            }
             typeObj["work_state_template"] = templateObj;
         }
         
@@ -470,6 +493,10 @@ void EquipmentConfigWidget::createDeviceTabs(const QString& typeId, QTabWidget* 
 
 void EquipmentConfigWidget::updateAllVisibility()
 {
+    if (m_isLoading) {
+        return;
+    }
+    
     // 遍历所有装备类型的tab
     for (int i = 0; i < count(); ++i) {
         QWidget* tabWidget = widget(i);
@@ -501,6 +528,61 @@ void EquipmentConfigWidget::updateAllVisibility()
 bool EquipmentConfigWidget::validateAll()
 {
     QStringList errors;
+    auto normalizeValue = [](ParameterItem* param, const QVariant& value) {
+        QVariant normalized = value;
+        const QString type = param->getType();
+        
+        if (!normalized.isValid() || (type == "string" && normalized.toString().isEmpty())) {
+            if (type == "string" && param->isArrayLike()) {
+                normalized = QStringLiteral("[]");
+            } else {
+                normalized = param->getDefaultValue();
+            }
+        }
+        
+        if (type == "int" || type == "Byte") {
+            bool ok = false;
+            int v = normalized.toInt(&ok);
+            if (!ok) {
+                v = param->getDefaultValue().toInt();
+            }
+            int minVal = static_cast<int>(param->getMinValue());
+            int maxVal = static_cast<int>(param->getMaxValue());
+            if (v < minVal) v = minVal;
+            if (v > maxVal) v = maxVal;
+            normalized = v;
+        } else if (type == "double") {
+            bool ok = false;
+            double v = normalized.toDouble(&ok);
+            if (!ok) {
+                v = param->getDefaultValue().toDouble();
+            }
+            double minVal = param->getMinValue();
+            double maxVal = param->getMaxValue();
+            if (v < minVal) v = minVal;
+            if (v > maxVal) v = maxVal;
+            normalized = v;
+        } else if (type == "enum") {
+            QString v = normalized.toString();
+            if (!param->getOptions().contains(v)) {
+                QString def = param->getDefaultValue().toString();
+                if (param->getOptions().contains(def)) {
+                    v = def;
+                } else if (!param->getOptions().isEmpty()) {
+                    v = param->getOptions().first();
+                }
+            }
+            normalized = v;
+        } else if (type == "string") {
+            QString v = normalized.toString();
+            if (!ParameterItem::stringAllowedPattern().match(v).hasMatch()) {
+                v = param->getDefaultValue().toString();
+            }
+            normalized = v;
+        }
+        
+        return normalized;
+    };
     
     for (EquipmentType* equipType : m_equipmentTypes) {
         const auto& basicParams = equipType->getBasicParameters();
@@ -510,7 +592,8 @@ bool EquipmentConfigWidget::validateAll()
         for (DeviceInstance* device : devices) {
             // 基本参数校验
             for (ParameterItem* param : basicParams) {
-                QVariant val = device->getBasicValue(param->getId());
+                QVariant val = normalizeValue(param, device->getBasicValue(param->getId()));
+                device->setBasicValue(param->getId(), val); // 回写自动填充或校正的值
                 if (!param->validate(val)) {
                     errors << QString(u8"设备[%1] 基本参数[%2] 输入非法或超出范围").arg(device->getDeviceName(), param->getLabel());
                 }
@@ -521,7 +604,8 @@ bool EquipmentConfigWidget::validateAll()
                 for (int stateIdx = 0; stateIdx < device->getWorkStateCount(); ++stateIdx) {
                     QVariantMap stateValues = device->getWorkStateValues(stateIdx);
                     for (ParameterItem* param : wsTemplate->getParameters()) {
-                        QVariant val = stateValues.value(param->getId(), param->getDefaultValue());
+                        QVariant val = normalizeValue(param, stateValues.value(param->getId(), param->getDefaultValue()));
+                        stateValues[param->getId()] = val; // 回写自动填充或校正的值
                         if (!param->validate(val)) {
                             errors << QString(u8"设备[%1] 工作状态%2 参数[%3] 输入非法或超出范围")
                                        .arg(device->getDeviceName())
@@ -529,6 +613,7 @@ bool EquipmentConfigWidget::validateAll()
                                        .arg(param->getLabel());
                         }
                     }
+                    device->setWorkStateValues(stateIdx, stateValues);
                 }
             }
         }
