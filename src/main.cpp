@@ -100,6 +100,19 @@ private:
             m_configWidget->openStructureEditor();
         });
         m_configWidget->addAction(contextEditAction);
+        QAction* contextNewAction = new QAction(u8"新建空白配置...", m_configWidget);
+        connect(contextNewAction, &QAction::triggered, this, [this]() {
+            QString fileName = QFileDialog::getSaveFileName(this,
+                                                            u8"创建空白配置文件",
+                                                            QStringLiteral("equipment_config_new.json"),
+                                                            u8"JSON文件 (*.json)");
+            if (fileName.isEmpty()) return;
+            if (m_configWidget->createNewConfig(fileName)) {
+                statusBar()->showMessage(QString(u8"已创建空白配置: %1").arg(fileName), 3000);
+                m_configWidget->openStructureEditor();
+            }
+        });
+        m_configWidget->addAction(contextNewAction);
         
         // 创建菜单
         QMenuBar* menuBar = this->menuBar();

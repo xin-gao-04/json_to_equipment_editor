@@ -166,6 +166,32 @@ bool EquipmentConfigWidget::loadFromJson(const QString& jsonFile)
     return true;
 }
 
+bool EquipmentConfigWidget::createNewConfig(const QString& jsonFile)
+{
+    QFileInfo fi(jsonFile);
+    QDir dir = fi.dir();
+    if (!dir.exists() && !dir.mkpath(".")) {
+        emit validationError(QString(u8"无法创建目录: %1").arg(dir.absolutePath()));
+        return false;
+    }
+
+    QJsonObject rootObj;
+    QJsonObject ecObj;
+    ecObj.insert("equipment_types", QJsonArray());
+    rootObj.insert("equipment_config", ecObj);
+
+    QFile file(jsonFile);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        emit validationError(QString(u8"无法创建空白配置文件: %1").arg(jsonFile));
+        return false;
+    }
+    QJsonDocument doc(rootObj);
+    file.write(doc.toJson());
+    file.close();
+
+    return loadFromJson(jsonFile);
+}
+
 void EquipmentConfigWidget::loadDeviceInstanceValues(const QJsonObject& configObj)
 {
     if (!configObj.contains("equipment_types")) {

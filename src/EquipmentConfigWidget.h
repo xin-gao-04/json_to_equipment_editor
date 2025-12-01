@@ -22,6 +22,7 @@ public:
     void updateAllVisibility();
     bool validateAll();
     bool openStructureEditor(); // 打开结构编辑模式
+    bool createNewConfig(const QString& jsonFile); // 创建空白配置并加载
 
     // 文件路径管理
     QString getCurrentFilePath() const { return m_currentFilePath; }
