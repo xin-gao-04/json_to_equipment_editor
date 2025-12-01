@@ -551,7 +551,8 @@ void ConfigEditorDialog::applyStateMetaChanges()
     }
 
     // 标签列表
-    QStringList titles = m_stateTitlesEdit->toPlainText().split(QRegularExpression("[\\r\\n]+"), Qt::SkipEmptyParts);
+    // 兼容旧版 Qt：使用 QString::SkipEmptyParts 跳过空行
+    QStringList titles = m_stateTitlesEdit->toPlainText().split(QRegularExpression("[\\r\\n]+"), QString::SkipEmptyParts);
     if (!titles.isEmpty()) {
         QJsonArray arr;
         for (const auto& t : titles) {
