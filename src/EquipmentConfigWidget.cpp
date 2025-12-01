@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QScopedValueRollback>
 #include <QTabBar>
+#include <QHash>
 #include "ConfigEditorDialog.h"
 
 EquipmentConfigWidget::EquipmentConfigWidget(QWidget* parent)
@@ -303,12 +304,22 @@ bool EquipmentConfigWidget::saveToJson(const QString& jsonFile)
         rootObj = QJsonObject(); // 创建新的根对象
     }
     
-    QJsonObject configObj;
+    QJsonObject configObj = rootObj.value("equipment_config").toObject();
+    QJsonArray existingTypesArray = configObj.value("equipment_types").toArray();
+    QHash<QString, QJsonObject> existingTypeMap;
+    for (const auto& v : existingTypesArray) {
+        QJsonObject obj = v.toObject();
+        QString tid = obj.value("type_id").toString();
+        if (!tid.isEmpty()) {
+            existingTypeMap.insert(tid, obj);
+        }
+    }
+
     QJsonArray equipmentTypesArray;
     
     // 序列化所有设备类型
     for (EquipmentType* equipType : m_equipmentTypes) {
-        QJsonObject typeObj;
+        QJsonObject typeObj = existingTypeMap.value(equipType->getTypeId());
         typeObj["type_id"] = equipType->getTypeId();
         typeObj["type_name"] = equipType->getTypeName();
         
@@ -350,7 +361,7 @@ bool EquipmentConfigWidget::saveToJson(const QString& jsonFile)
         // 序列化工作状态模板
         WorkStateTemplate* wsTemplate = equipType->getWorkStateTemplate();
         if (wsTemplate) {
-            QJsonObject templateObj;
+            QJsonObject templateObj = typeObj.value("work_state_template").toObject();
             templateObj["template_id"] = wsTemplate->getTemplateId();
             templateObj["template_name"] = wsTemplate->getTemplateName();
             
@@ -388,11 +399,42 @@ bool EquipmentConfigWidget::saveToJson(const QString& jsonFile)
                     titlesArr.append(t);
                 }
                 templateObj["state_tab_titles"] = titlesArr;
+            } else {
+                templateObj.remove("state_tab_titles");
             }
             if (wsTemplate->getStateTabCountOverride() > 0) {
                 templateObj["state_tab_count"] = wsTemplate->getStateTabCountOverride();
+            } else {
+                templateObj.remove("state_tab_count");
+            }
+
+            // 规则（可见性 / 选项 / 校验说明）
+            QJsonArray visRules = wsTemplate->getVisibilityRulesJson();
+            if (!visRules.isEmpty()) {
+                templateObj["visibility_rules"] = visRules;
+            } else {
+                templateObj.remove("visibility_rules");
+            }
+
+            QJsonArray optRules = wsTemplate->getOptionRulesJson();
+            if (!optRules.isEmpty()) {
+                templateObj["option_rules"] = optRules;
+            } else {
+                templateObj.remove("option_rules");
+            }
+
+            QJsonArray validationRules = wsTemplate->getValidationRulesJson();
+            if (validationRules.isEmpty()) {
+                validationRules = templateObj.value("validation_rules").toArray();
+            }
+            if (!validationRules.isEmpty()) {
+                templateObj["validation_rules"] = validationRules;
+            } else {
+                templateObj.remove("validation_rules");
             }
             typeObj["work_state_template"] = templateObj;
+        } else {
+            typeObj.remove("work_state_template");
         }
         
         // 序列化设备实例的实际参数值

@@ -3,6 +3,7 @@
 #include "ParameterItem.h"
 #include <QList>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QWidget>
 #include <QVariantMap>
 #include <QMap>
@@ -50,6 +51,9 @@ public:
     int getStateTabCountOverride() const { return m_stateTabCountOverride; }
     const QVector<VisibilityRule>& getVisibilityRules() const { return m_visibilityRules; }
     const QVector<OptionRule>& getOptionRules() const { return m_optionRules; }
+    QJsonArray getVisibilityRulesJson() const;
+    QJsonArray getOptionRulesJson() const;
+    QJsonArray getValidationRulesJson() const { return m_validationRules; }
 
 private:
     QString m_templateId;
@@ -60,6 +64,7 @@ private:
     mutable QMap<int, QVariantMap> m_stateValues;
     QVector<VisibilityRule> m_visibilityRules;
     QVector<OptionRule> m_optionRules;
+    QJsonArray m_validationRules;
     QStringList m_stateTabTitles;
     int m_stateTabCountOverride = -1;
 };

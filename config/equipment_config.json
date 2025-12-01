@@ -283,7 +283,7 @@
                             "repeat_period_agility_step": "0",
                             "repeat_period_count": "1",
                             "repeat_period_values": "50",
-                            "signal_loss_rate": "-2",
+                            "signal_loss_rate": "-3",
                             "signal_type": "0x02-常规",
                             "target_type": "1-机扫雷达",
                             "transmit_loss": "10",
@@ -1338,7 +1338,7 @@
                                     "frequency_count": "16",
                                     "hop_interval": "1000000",
                                     "hop_period": "0",
-                                    "modulation_style": "29",
+                                    "modulation_style": "28",
                                     "power": "130",
                                     "radio_number": "4",
                                     "signal_bandwidth": "50000",
@@ -1575,6 +1575,40 @@
                 "type_id": "uhf",
                 "type_name": "超短波设备",
                 "work_state_template": {
+                    "option_rules": [
+                        {
+                            "controller": "uhf_mode",
+                            "options_by_value": {
+                                "定频": [
+                                    "1-话音AM",
+                                    "2-话音FM",
+                                    "6-数传超短波MSK",
+                                    "7-数传超短波TCM",
+                                    "22-数传D8PSK+FM",
+                                    "23-数传D8PSK",
+                                    "29-数传超短波BPSK",
+                                    "38-LINK11",
+                                    "39-LINK4A"
+                                ],
+                                "扩频": [
+                                    "24-数传DQPSK+FM",
+                                    "25-数传DBPSK+FM"
+                                ],
+                                "跳频": [
+                                    "5-话音FH",
+                                    "8-数传超短波FH1",
+                                    "9-数传超短波FH2",
+                                    "10-数传超短波FH3",
+                                    "27-话音FH1",
+                                    "28-话音FH2",
+                                    "30-数传超短波FH4",
+                                    "31-数传超短波FH5",
+                                    "32-数传超短波FH6"
+                                ]
+                            },
+                            "target": "signal_type"
+                        }
+                    ],
                     "parameters": [
                         {
                             "default": "1",
@@ -1762,7 +1796,119 @@
                         }
                     ],
                     "template_id": "uhf_work_state",
-                    "template_name": "超短波工作状态"
+                    "template_name": "超短波工作状态",
+                    "validation_rules": [
+                        {
+                            "constraints": [
+                                {
+                                    "equal": [
+                                        "start_frequency",
+                                        "end_frequency"
+                                    ],
+                                    "when": {
+                                        "uhf_mode": [
+                                            "定频",
+                                            "扩频"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "less": [
+                                        "start_frequency",
+                                        "end_frequency"
+                                    ],
+                                    "when": {
+                                        "uhf_mode": [
+                                            "跳频"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "min": {
+                                        "frequency_count": 16
+                                    },
+                                    "when": {
+                                        "uhf_mode": [
+                                            "跳频"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "min_end_by_interval": {
+                                        "count": "frequency_count",
+                                        "end": "end_frequency",
+                                        "interval": "hop_interval",
+                                        "start": "start_frequency"
+                                    },
+                                    "when": {
+                                        "uhf_mode": [
+                                            "跳频"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "list_between": {
+                                        "list": "frequencies",
+                                        "max_from": "end_frequency",
+                                        "min_from": "start_frequency"
+                                    },
+                                    "when": {
+                                        "uhf_mode": [
+                                            "跳频"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "description": "定频/扩频: 起始频率 = 终止频率；跳频: 起始频率 < 终止频率，频率个数 ≥ 16，终止频率 ≥ 起始频率 + 频率个数 × 跳频间隔，频率数组内各频点在(起始频率, 终止频率)范围内。",
+                            "id": "uhf_mode_freq_basic",
+                            "scope": "per_state"
+                        }
+                    ],
+                    "visibility_rules": [
+                        {
+                            "cases": [
+                                {
+                                    "show": [
+                                        "comm_network_id",
+                                        "signal_type",
+                                        "start_frequency",
+                                        "end_frequency",
+                                        "signal_bandwidth",
+                                        "power"
+                                    ],
+                                    "value": "定频"
+                                },
+                                {
+                                    "show": [
+                                        "comm_network_id",
+                                        "signal_type",
+                                        "start_frequency",
+                                        "end_frequency",
+                                        "hop_period",
+                                        "hop_interval",
+                                        "frequency_count",
+                                        "frequencies",
+                                        "radio_number",
+                                        "power"
+                                    ],
+                                    "value": "跳频"
+                                },
+                                {
+                                    "show": [
+                                        "comm_network_id",
+                                        "signal_type",
+                                        "start_frequency",
+                                        "end_frequency",
+                                        "spread_code_rate",
+                                        "spread_code_length",
+                                        "power"
+                                    ],
+                                    "value": "扩频"
+                                }
+                            ],
+                            "controller": "uhf_mode"
+                        }
+                    ]
                 }
             }
         ]

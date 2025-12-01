@@ -163,6 +163,11 @@ WorkStateTemplate* WorkStateTemplate::fromJson(const QJsonObject& json)
             }
         }
     }
+
+    // 校验说明规则：保存原始 JSON，便于后续序列化与校验
+    if (json.contains("validation_rules")) {
+        tmpl->m_validationRules = json["validation_rules"].toArray();
+    }
     
     // 自定义状态标签和可选的数量覆盖
     if (json.contains("state_tab_titles")) {
@@ -176,4 +181,58 @@ WorkStateTemplate* WorkStateTemplate::fromJson(const QJsonObject& json)
     }
     
     return tmpl;
+}
+
+QJsonArray WorkStateTemplate::getVisibilityRulesJson() const
+{
+    QJsonArray arr;
+    for (const auto& rule : m_visibilityRules) {
+        if (rule.controllerId.isEmpty()) {
+            continue;
+        }
+        QJsonObject obj;
+        obj.insert("controller", rule.controllerId);
+        QJsonArray casesArr;
+        for (const auto& c : rule.cases) {
+            QJsonObject caseObj;
+            caseObj.insert("value", c.value);
+            QJsonArray showArr;
+            for (const auto& sid : c.showIds) {
+                showArr.append(sid);
+            }
+            caseObj.insert("show", showArr);
+            casesArr.append(caseObj);
+        }
+        if (!casesArr.isEmpty()) {
+            obj.insert("cases", casesArr);
+            arr.append(obj);
+        }
+    }
+    return arr;
+}
+
+QJsonArray WorkStateTemplate::getOptionRulesJson() const
+{
+    QJsonArray arr;
+    for (const auto& rule : m_optionRules) {
+        if (rule.controllerId.isEmpty() || rule.targetId.isEmpty() || rule.optionsByValue.isEmpty()) {
+            continue;
+        }
+        QJsonObject obj;
+        obj.insert("controller", rule.controllerId);
+        obj.insert("target", rule.targetId);
+        QJsonObject mapObj;
+        for (auto it = rule.optionsByValue.begin(); it != rule.optionsByValue.end(); ++it) {
+            QJsonArray opts;
+            for (const auto& v : it.value()) {
+                opts.append(v);
+            }
+            mapObj.insert(it.key(), opts);
+        }
+        if (!mapObj.isEmpty()) {
+            obj.insert("options_by_value", mapObj);
+            arr.append(obj);
+        }
+    }
+    return arr;
 }
