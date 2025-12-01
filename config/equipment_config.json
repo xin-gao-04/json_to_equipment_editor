@@ -253,7 +253,7 @@
                     {
                         "basic_values": {
                             "antenna_gain": "33",
-                            "antenna_main_beam_width_dwell_time": "5",
+                            "antenna_main_beam_width_dwell_time": "4",
                             "antenna_pattern_type": "2-余弦函数",
                             "antenna_scan_end_angle": "60",
                             "antenna_scan_period": "10",
@@ -264,7 +264,7 @@
                             "carrier_frequency_agility_step": "0",
                             "carrier_frequency_count": "1",
                             "carrier_frequency_values": "900",
-                            "current_beat_signal_amplitude": "-30",
+                            "current_beat_signal_amplitude": "-31",
                             "horizontal_beam_width": "5",
                             "intra_pulse_frequency_coding": "1",
                             "intra_pulse_phase_coding": "12",
@@ -283,7 +283,7 @@
                             "repeat_period_agility_step": "0",
                             "repeat_period_count": "1",
                             "repeat_period_values": "50",
-                            "signal_loss_rate": "0",
+                            "signal_loss_rate": "-2",
                             "signal_type": "0x02-常规",
                             "target_type": "1-机扫雷达",
                             "transmit_loss": "10",
@@ -534,7 +534,11 @@
                             "default": "0",
                             "id": "repeat_period_count",
                             "label": "重复周期数",
-                            "type": "string",
+                            "range": [
+                                0,
+                                10
+                            ],
+                            "type": "int",
                             "unit": ""
                         },
                         {
@@ -644,16 +648,16 @@
                         }
                     ],
                     "state_tab_titles": [
-                        "\"0x01-连续波\",",
-                        "\"0x02-常规\",",
-                        "\"0x04-载频捷变\",",
-                        "\"0x08-载频跳变\",",
-                        "\"0x10-载频滑变\",",
-                        "\"0x20-重复周期参差\",",
-                        "\"0x40-重复周期参差抖动\",",
-                        "\"0x80-重复周期抖动\",",
-                        "\"0x100-重复周期跳变\",",
-                        "\"0x200-重复周期滑变\""
+                        "0x01-连续波",
+                        "0x02-常规",
+                        "0x04-载频捷变",
+                        "0x08-载频跳变",
+                        "0x10-载频滑变",
+                        "0x20-重复周期参差",
+                        "0x40-重复周期参差抖动",
+                        "0x80-重复周期抖动",
+                        "0x100-重复周期跳变",
+                        "0x200-重复周期滑变"
                     ],
                     "template_id": "信号类型",
                     "template_name": "信号类型"
@@ -1281,7 +1285,8 @@
                                     "signal_type": "1-话音AM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "60000000"
+                                    "start_frequency": "60000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1300,15 +1305,16 @@
                                     "signal_type": "6-数传超短波MSK",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "70000000"
+                                    "start_frequency": "70000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
                                 "state_index": 2,
                                 "values": {
                                     "comm_network_id": "48",
-                                    "end_frequency": "190000000",
-                                    "frequencies": "[19000000,191000000,192000000,193000000,194000000,195000000,196000000,197000000,198000000,199000000,200000000,201000000,202000000,203000000,204000000,205000000]",
+                                    "end_frequency": "250000000",
+                                    "frequencies": "[190000000,191000000,192000000,193000000,194000000,195000000,196000000,197000000,198000000,199000000,200000000,201000000,202000000,203000000,204000000,205000000]",
                                     "frequency_count": "16",
                                     "hop_interval": "1000000",
                                     "hop_period": "1",
@@ -1316,18 +1322,19 @@
                                     "power": "120",
                                     "radio_number": "3",
                                     "signal_bandwidth": "30000",
-                                    "signal_type": "10-数传超短波FH3",
+                                    "signal_type": "5-话音FH",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "185000000"
+                                    "start_frequency": "175000000",
+                                    "uhf_mode": "跳频"
                                 }
                             },
                             {
                                 "state_index": 3,
                                 "values": {
                                     "comm_network_id": "49",
-                                    "end_frequency": "185000000",
-                                    "frequencies": "[19000000,191000000,192000000,193000000,194000000,195000000,196000000,197000000,198000000,199000000,200000000,201000000,202000000,203000000,204000000,205000000]",
+                                    "end_frequency": "285000000",
+                                    "frequencies": "[190000000,191000000,192000000,193000000,194000000,195000000,196000000,197000000,198000000,199000000,200000000,201000000,202000000,203000000,204000000,205000000]",
                                     "frequency_count": "16",
                                     "hop_interval": "1000000",
                                     "hop_period": "0",
@@ -1338,7 +1345,8 @@
                                     "signal_type": "5-话音FH",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "170000000"
+                                    "start_frequency": "170000000",
+                                    "uhf_mode": "跳频"
                                 }
                             },
                             {
@@ -1357,7 +1365,8 @@
                                     "signal_type": "2-话音FM",
                                     "spread_code_length": "128",
                                     "spread_code_rate": "1000",
-                                    "start_frequency": "90000000"
+                                    "start_frequency": "90000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1376,7 +1385,8 @@
                                     "signal_type": "1-话音AM",
                                     "spread_code_length": "128",
                                     "spread_code_rate": "1500",
-                                    "start_frequency": "270000000"
+                                    "start_frequency": "270000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1392,10 +1402,11 @@
                                     "power": "160",
                                     "radio_number": "7",
                                     "signal_bandwidth": "150000",
-                                    "signal_type": "5-话音FH",
+                                    "signal_type": "1-话音AM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "210000000"
+                                    "start_frequency": "210000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1411,10 +1422,11 @@
                                     "power": "170",
                                     "radio_number": "8",
                                     "signal_bandwidth": "150000",
-                                    "signal_type": "25-数传DBPSK+FM",
+                                    "signal_type": "1-话音AM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "220000000"
+                                    "start_frequency": "220000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1430,10 +1442,11 @@
                                     "power": "180",
                                     "radio_number": "9",
                                     "signal_bandwidth": "100000",
-                                    "signal_type": "25-数传DBPSK+FM",
+                                    "signal_type": "1-话音AM",
                                     "spread_code_length": "5",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "290000000"
+                                    "start_frequency": "290000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1452,7 +1465,8 @@
                                     "signal_type": "1-话音AM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "1700000000"
+                                    "start_frequency": "1700000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
@@ -1471,14 +1485,15 @@
                                     "signal_type": "2-话音FM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "2000100000"
+                                    "start_frequency": "2000100000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
                                 "state_index": 11,
                                 "values": {
                                     "comm_network_id": "57",
-                                    "end_frequency": "2007500000",
+                                    "end_frequency": "12000000",
                                     "frequencies": "[]",
                                     "frequency_count": "0",
                                     "hop_interval": "0",
@@ -1490,14 +1505,15 @@
                                     "signal_type": "6-数传超短波MSK",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "12000000"
+                                    "start_frequency": "12000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
                                 "state_index": 12,
                                 "values": {
                                     "comm_network_id": "58",
-                                    "end_frequency": "2000080000",
+                                    "end_frequency": "15000000",
                                     "frequencies": "[]",
                                     "frequency_count": "0",
                                     "hop_interval": "0",
@@ -1509,14 +1525,15 @@
                                     "signal_type": "29-数传超短波BPSK",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "15000000"
+                                    "start_frequency": "15000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
                                 "state_index": 13,
                                 "values": {
                                     "comm_network_id": "59",
-                                    "end_frequency": "2008000000",
+                                    "end_frequency": "18000000",
                                     "frequencies": "[]",
                                     "frequency_count": "0",
                                     "hop_interval": "0",
@@ -1528,14 +1545,15 @@
                                     "signal_type": "22-数传D8PSK+FM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "18000000"
+                                    "start_frequency": "18000000",
+                                    "uhf_mode": "定频"
                                 }
                             },
                             {
                                 "state_index": 14,
                                 "values": {
                                     "comm_network_id": "60",
-                                    "end_frequency": "214000000",
+                                    "end_frequency": "210000000",
                                     "frequencies": "[]",
                                     "frequency_count": "64",
                                     "hop_interval": "2500",
@@ -1544,10 +1562,11 @@
                                     "power": "0",
                                     "radio_number": "0",
                                     "signal_bandwidth": "100000",
-                                    "signal_type": "5-话音FH",
+                                    "signal_type": "1-话音AM",
                                     "spread_code_length": "0",
                                     "spread_code_rate": "0",
-                                    "start_frequency": "210000000"
+                                    "start_frequency": "210000000",
+                                    "uhf_mode": "定频"
                                 }
                             }
                         ]
@@ -1743,153 +1762,7 @@
                         }
                     ],
                     "template_id": "uhf_work_state",
-                    "template_name": "超短波工作状态",
-                    "visibility_rules": [
-                        {
-                            "controller": "uhf_mode",
-                            "cases": [
-                                {
-                                    "value": "定频",
-                                    "show": [
-                                        "comm_network_id",
-                                        "signal_type",
-                                        "start_frequency",
-                                        "end_frequency",
-                                        "signal_bandwidth",
-                                        "power"
-                                    ]
-                                },
-                                {
-                                    "value": "跳频",
-                                    "show": [
-                                        "comm_network_id",
-                                        "signal_type",
-                                        "start_frequency",
-                                        "end_frequency",
-                                        "hop_period",
-                                        "hop_interval",
-                                        "frequency_count",
-                                        "frequencies",
-                                        "radio_number",
-                                        "power"
-                                    ]
-                                },
-                                {
-                                    "value": "扩频",
-                                    "show": [
-                                        "comm_network_id",
-                                        "signal_type",
-                                        "start_frequency",
-                                        "end_frequency",
-                                        "spread_code_rate",
-                                        "spread_code_length",
-                                        "power"
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                    "option_rules": [
-                        {
-                            "controller": "uhf_mode",
-                            "target": "signal_type",
-                            "options_by_value": {
-                                "定频": [
-                                    "1-话音AM",
-                                    "2-话音FM",
-                                    "6-数传超短波MSK",
-                                    "7-数传超短波TCM",
-                                    "22-数传D8PSK+FM",
-                                    "23-数传D8PSK",
-                                    "29-数传超短波BPSK",
-                                    "38-LINK11",
-                                    "39-LINK4A"
-                                ],
-                                "跳频": [
-                                    "5-话音FH",
-                                    "8-数传超短波FH1",
-                                    "9-数传超短波FH2",
-                                    "10-数传超短波FH3",
-                                    "27-话音FH1",
-                                    "28-话音FH2",
-                                    "30-数传超短波FH4",
-                                    "31-数传超短波FH5",
-                                    "32-数传超短波FH6"
-                                ],
-                                "扩频": [
-                                    "24-数传DQPSK+FM",
-                                    "25-数传DBPSK+FM"
-                                ]
-                            }
-                        }
-                    ],
-                    "validation_rules": [
-                        {
-                            "id": "uhf_mode_freq_basic",
-                            "scope": "per_state",
-                            "description": "定频/扩频: 起始频率 = 终止频率；跳频: 起始频率 < 终止频率，频率个数 ≥ 16，终止频率 ≥ 起始频率 + 频率个数 × 跳频间隔，频率数组内各频点在(起始频率, 终止频率)范围内。",
-                            "constraints": [
-                                {
-                                    "when": {
-                                        "uhf_mode": [
-                                            "定频",
-                                            "扩频"
-                                        ]
-                                    },
-                                    "equal": [
-                                        "start_frequency",
-                                        "end_frequency"
-                                    ]
-                                },
-                                {
-                                    "when": {
-                                        "uhf_mode": [
-                                            "跳频"
-                                        ]
-                                    },
-                                    "less": [
-                                        "start_frequency",
-                                        "end_frequency"
-                                    ]
-                                },
-                                {
-                                    "when": {
-                                        "uhf_mode": [
-                                            "跳频"
-                                        ]
-                                    },
-                                    "min": {
-                                        "frequency_count": 16
-                                    }
-                                },
-                                {
-                                    "when": {
-                                        "uhf_mode": [
-                                            "跳频"
-                                        ]
-                                    },
-                                    "min_end_by_interval": {
-                                        "start": "start_frequency",
-                                        "end": "end_frequency",
-                                        "count": "frequency_count",
-                                        "interval": "hop_interval"
-                                    }
-                                },
-                                {
-                                    "when": {
-                                        "uhf_mode": [
-                                            "跳频"
-                                        ]
-                                    },
-                                    "list_between": {
-                                        "list": "frequencies",
-                                        "min_from": "start_frequency",
-                                        "max_from": "end_frequency"
-                                    }
-                                }
-                            ]
-                        }
-                    ]
+                    "template_name": "超短波工作状态"
                 }
             }
         ]

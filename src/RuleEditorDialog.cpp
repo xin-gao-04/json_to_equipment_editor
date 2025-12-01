@@ -1,4 +1,4 @@
-#include "RuleEditorDialog.h"
+﻿#include "RuleEditorDialog.h"
 
 #include <QTabWidget>
 #include <QListWidget>

@@ -551,7 +551,7 @@ bool EquipmentConfigWidget::validateAll()
         if (trimmed.isEmpty()) {
             return true;
         }
-        const QStringList parts = trimmed.split(',', Qt::SkipEmptyParts);
+        const QStringList parts = trimmed.split(',',  QString::SkipEmptyParts);
         for (const QString& p : parts) {
             bool ok = false;
             double v = p.trimmed().toDouble(&ok);
